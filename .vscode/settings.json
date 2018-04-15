@@ -1,0 +1,21 @@
+{
+    "C_Cpp.autocomplete": "Disabled",
+    "code-runner.runInTerminal": true,
+    "code-runner.executorMap": {
+        "c": "cd $dir && make ; ./vm",
+    },
+    "terminal.integrated.env.windows": {
+        "PATH": "${env:PATH};/MinGW/msys/1.0/bin"
+    },
+    "files.associations": {
+        "vm.h": "c",
+        "vm_menu.h": "c",
+        "vm_options.h": "c",
+        "vm_stock.h": "c",
+        "vm_coin.h": "c",
+        "vm_system.h": "c",
+        "utility.h": "c",
+        "stdio.h": "c",
+        "cstdio": "c"
+    },
+}
