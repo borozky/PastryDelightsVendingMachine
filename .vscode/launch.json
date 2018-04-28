@@ -10,7 +10,10 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/vm",
-            "args": [],
+            "args": [
+                "stock.dat", 
+                "coins.dat"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
