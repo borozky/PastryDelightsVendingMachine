@@ -2,7 +2,7 @@
     "C_Cpp.autocomplete": "Disabled",
     "code-runner.runInTerminal": true,
     "code-runner.executorMap": {
-        "c": "cd $dir && make ; ./vm",
+        "c": "cd $dir && make ; ./vm stock.dat coins.dat",
     },
     "terminal.integrated.env.windows": {
         "PATH": "${env:PATH};/MinGW/msys/1.0/bin"
