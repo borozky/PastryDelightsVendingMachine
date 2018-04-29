@@ -15,6 +15,70 @@ int retrieveStocks(FILE * stockFile, List * itemList);
 
 int main(int argc, char ** argv)
 {
+    /* Retrieve the stocks */
+    FILE * stockFile;
+    List * itemList;
+    char * line;
+    char * token;
+    int lineNumber;
+    char * dollarsToken;
+    char * centsToken;
+
+    Node * node;
+    Node * nextNode;
+    Stock * stock;
+    Price * price;
+
+    stockFile = fopen(argv[1], "r");
+
+    line = (char*) malloc(sizeof(Stock));
+
+    if (stockFile == NULL) {
+        fprintf(stderr, "Stock file '%s' doesn't exists or unreadable", argv[1]);
+        return EXIT_FAILURE;
+    }
+
+    lineNumber = 0;
+    while (TRUE) {
+        stock = (Stock*) malloc(sizeof(Stock));
+
+        fgets(line, sizeof(Stock), stockFile);
+        if (feof(stockFile)) {
+            break;
+        }
+        printf("%s", line);
+
+        token = strtok(line, STOCK_DELIM);
+        strcpy(stock->id, token);
+
+        token = strtok(NULL, STOCK_DELIM);
+        strcpy(stock->name, token);
+
+        token = strtok(NULL, STOCK_DELIM);
+        strcpy(stock->desc, token);
+
+        token = strtok(NULL, STOCK_DELIM);
+
+        price = (Price*) malloc(sizeof(Price));
+        dollarsToken = strtok(token, STOCK_DELIM);
+        centsToken = strtok(NULL, STOCK_DELIM);
+        price->dollars = atoi(dollarsToken);
+        price->cents = atoi(centsToken);
+        stock->price = *price;
+
+        token = strtok(NULL, STOCK_DELIM);
+        stock->onHand = atoi(token);
+
+        
+    }
+
+    fclose(stockFile);
+
+
+
+
+
+    /* Retrieve the coins
     FILE * coinFile;
     Coin cashRegister[NUM_DENOMS];
 
@@ -27,6 +91,7 @@ int main(int argc, char ** argv)
     retrieveCashRegister(coinFile, cashRegister);
     printf("Cash register: %d\n", cashRegister[1].count);
     fclose(coinFile);
+    */
 
     return EXIT_SUCCESS;
 }
