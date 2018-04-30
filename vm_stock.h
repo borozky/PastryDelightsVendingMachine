@@ -18,3 +18,12 @@
 #define STOCK_DELIM "|"
 
 #endif
+
+List *create_list(void);
+Node *create_node(void);
+Node *get_last_node(List *list);
+Boolean push_node(List *list, Node *node);
+Node *push_new_node(List *list);
+Boolean add_stock_item(List *list, Stock *stockItem);
+Stock *get_stock_item_by_id(List *list, char id[ID_LEN + NULL_SPACE]);
+Boolean remove_stock_item_by_id(List *list, char id[ID_LEN + NULL_SPACE]);
