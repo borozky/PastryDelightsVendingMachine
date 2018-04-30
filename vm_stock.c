@@ -65,12 +65,14 @@ Boolean push_node(List *list, Node *node) {
         return FALSE;
     }
 
-    if ((*node).next != NULL) {
-        return FALSE;
-    }
-
     lastNode = get_last_node(list);
-    (*lastNode).next = node;
+    /* if has no last node (aka no elements in the list) */
+    if ( lastNode == NULL ) {
+        (*list).head = node;
+    }
+    else {
+        (*lastNode).next = node;
+    }
 
     (*list).size += 1;
 
@@ -81,7 +83,7 @@ Node *push_new_node(List *list) {
     Boolean isPushed;
     Node *newNode;
 
-    newNode = (Node *) malloc(sizeof(newNode));
+    newNode = create_node();
     if (newNode == NULL) {
         return NULL;
     }
@@ -95,18 +97,13 @@ Node *push_new_node(List *list) {
 }
 
 Boolean add_stock_item(List *list, Stock *stockItem) {
+    Node *lastNode;
+
     if (stockItem == NULL) {
         return FALSE;
     }
 
-    Node *lastNode;
-    lastNode = get_last_node(list);
-
-    if (lastNode == NULL) {
-        lastNode = create_node();
-        push_node(list, lastNode);
-    }
-
+    lastNode = push_new_node(list);
     (*lastNode).data = stockItem;
     return TRUE;
 }
@@ -165,7 +162,6 @@ Boolean remove_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
 
     return FALSE;
 }
-
 
 
 
