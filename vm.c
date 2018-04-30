@@ -21,11 +21,11 @@ int main(int argc, char ** argv)
     char * line;
     char * token;
     int lineNumber;
+    char * priceToken;
     char * dollarsToken;
     char * centsToken;
+    Node *tempNode;
 
-    Node * node;
-    Node * nextNode;
     Stock * stock;
     Price * price;
 
@@ -37,6 +37,8 @@ int main(int argc, char ** argv)
         fprintf(stderr, "Stock file '%s' doesn't exists or unreadable", argv[1]);
         return EXIT_FAILURE;
     }
+
+    itemList = create_list();
 
     lineNumber = 0;
     while (TRUE) {
@@ -57,20 +59,33 @@ int main(int argc, char ** argv)
         token = strtok(NULL, STOCK_DELIM);
         strcpy(stock->desc, token);
 
-        token = strtok(NULL, STOCK_DELIM);
-
-        price = (Price*) malloc(sizeof(Price));
-        dollarsToken = strtok(token, STOCK_DELIM);
-        centsToken = strtok(NULL, STOCK_DELIM);
-        price->dollars = atoi(dollarsToken);
-        price->cents = atoi(centsToken);
-        stock->price = *price;
+        priceToken = strtok(NULL, STOCK_DELIM);
 
         token = strtok(NULL, STOCK_DELIM);
         stock->onHand = atoi(token);
 
-        
+        price = (Price*) malloc(sizeof(Price));
+        dollarsToken = strtok(priceToken, ".");
+        centsToken = strtok(NULL, ".");
+        price->dollars = atoi(dollarsToken);
+        price->cents = atoi(centsToken);
+        stock->price = *price;
+
+
+        add_stock_item(itemList, stock);
     }
+
+    tempNode = (*itemList).head;
+    while (tempNode != NULL) {
+        printf("Stock ID: %s\n", tempNode->data->id);
+        printf("Stock Name: %s\n", tempNode->data->name);
+        printf("Stock Description: %s\n", tempNode->data->desc);
+        printf("Stock Price: %d.%02d\n", tempNode->data->price.dollars, tempNode->data->price.cents);
+        printf("Stock quantity: %d\n", tempNode->data->onHand);
+        tempNode = (*tempNode).next;
+    }
+
+
 
     fclose(stockFile);
 
