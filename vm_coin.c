@@ -16,3 +16,55 @@
  * init coins array, insert coin, change coin count for Denomination,
  * convert Denomination to coin value, deducting coins from register, etc...
  */
+
+Coin *create_coin(char *line) {
+    Coin *coin;
+    char *token; /* save string tokens here */
+    char *end_pointer; /* storage for non-int values processed by strtol() */
+    int num_cents;
+    int count;
+
+    /* coin = new Coin(); */
+    coin = (Coin *) malloc(sizeof(*coin));
+
+    /* split the line provided */
+    token = strtok(line, COIN_DELIM);
+    num_cents = strtol(token, &end_pointer, 10);
+    
+    switch (num_cents) {
+        case 1000:
+            (*coin).denom = TEN_DOLLARS;
+            break;
+        case 500:
+            (*coin).denom = TEN_DOLLARS;
+            break;
+        case 200:
+            (*coin).denom = TEN_DOLLARS;
+            break;
+        case 100:
+            (*coin).denom = TEN_DOLLARS;
+            break;
+        case 50:
+            (*coin).denom = TEN_DOLLARS;
+            break;
+        case 20:
+            (*coin).denom = TEN_DOLLARS;
+            break;
+        case 10:
+            (*coin).denom = TEN_DOLLARS;
+            break;
+        case 5:
+            (*coin).denom = TEN_DOLLARS;
+            break;
+        default:
+            free(coin);
+            fprintf(stderr, "%d is not a valid coin denomination.", num_cents);
+            return NULL;
+    }
+
+    token = strtok(NULL, COIN_DELIM);
+    count = strtol(token, &end_pointer, 10);
+    (*coin).count = count;
+
+    return coin;
+}

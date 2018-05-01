@@ -17,3 +17,5 @@
 #define COIN_DELIM ","
 
 #endif
+
+Coin *create_coin(char *line);
