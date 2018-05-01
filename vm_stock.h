@@ -27,3 +27,4 @@ Node *push_new_node(List *list);
 Boolean add_stock_item(List *list, Stock *stockItem);
 Stock *get_stock_item_by_id(List *list, char id[ID_LEN + NULL_SPACE]);
 Boolean remove_stock_item_by_id(List *list, char id[ID_LEN + NULL_SPACE]);
+Stock *create_stock(char *line);

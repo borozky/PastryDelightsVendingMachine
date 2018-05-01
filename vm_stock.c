@@ -19,7 +19,7 @@
 List *create_list(void) {
     List *list;
 
-    list = (List *) malloc(sizeof(list));
+    list = (List *) malloc(sizeof(*list));
     if (list == NULL) {
         return NULL;
     }
@@ -32,7 +32,7 @@ List *create_list(void) {
 Node *create_node(void) {
     Node *node;
 
-    node = (Node *) malloc(sizeof(node));
+    node = (Node *) malloc(sizeof(*node));
     if (node == NULL) {
         return NULL;
     }
@@ -161,6 +161,51 @@ Boolean remove_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
     }
 
     return FALSE;
+}
+
+Stock *create_stock(char *line) {
+    Stock *stock;
+    char *token;
+    char *priceToken;
+    Price *price;
+    int onHand;
+
+    /* stock = new Stock(); */
+    stock = (Stock *) malloc(sizeof(*stock));
+
+    /* Process PRICE */
+    price = (Price *) malloc(sizeof(*price));
+
+
+    /* copy strings. Assigning strings produce compile errors  */
+
+    /* ID */
+    token = strtok(line, STOCK_DELIM);
+    strcpy((*stock).id, token);
+
+    /* NAME */
+    token = strtok(NULL, STOCK_DELIM);
+    strcpy((*stock).name, token);
+
+    /* DESCRIPTION */
+    token = strtok(NULL, STOCK_DELIM);
+    strcpy((*stock).desc, token);
+
+    /* PRICE, this token will be split later */
+    priceToken = strtok(NULL, STOCK_DELIM);
+
+    /* STOCK ON HAND */
+    token = strtok(NULL, STOCK_DELIM);
+    onHand = atoi(token);
+    (*stock).onHand = onHand;
+
+    token = strtok(priceToken, ".");
+    (*price).dollars = atoi(token);
+    token = strtok(NULL, ".");
+    (*price).cents = atoi(token);
+    (*stock).price = *price;
+
+    return stock;
 }
 
 
