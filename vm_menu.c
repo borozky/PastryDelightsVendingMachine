@@ -5,7 +5,6 @@
 ******************************************************************************/
 
 #include "vm_menu.h"
-#define NUM_OF_OPTIONS 9
 
 /**
  * vm_menu.c handles the initialisation and management of the menu array.
@@ -22,15 +21,8 @@ void initMenu(MenuItem * menu)
     int i = 0;
     int j = 0;
 
-    /* menu will be NULL when passed. So initialize some memory */
-    menu = (MenuItem *) malloc(sizeof(MenuItem) * NUM_OF_OPTIONS);
-    if (menu == NULL) {
-        printf("CANNOT INITIALIZE MENU ITEMS");
-        exit(0);
-    }
-
     /* array of strings of menu items */
-    char* menuItemTexts[NUM_OF_OPTIONS] = {
+    char* menuItemTexts[NUM_OPTIONS] = {
         "Display items",
         "Purchase items",
         "Save and Exit",
@@ -43,7 +35,7 @@ void initMenu(MenuItem * menu)
     };
 
     /* array of function pointers */
-    MenuFunction menuFunctions[NUM_OF_OPTIONS] = {
+    MenuFunction menuFunctions[NUM_OPTIONS] = {
         displayItems,
         purchaseItem,
         saveAndExit,
@@ -57,27 +49,21 @@ void initMenu(MenuItem * menu)
 
 
     /* assign text and callbacks */
-    for (i = 0; i < NUM_OF_OPTIONS; i++) {
-        /**
-         * Using this code below produce error 'array type 'char [51]' is not assignable'
-         * menu[i].text = menuItemText[i]
-         * So copy the strings instead of referencing them
-         */
+    for (i = 0; i < NUM_OPTIONS; i++) {
         strcpy(menu[i].text, menuItemTexts[i]);
         menu[i].function = menuFunctions[i];
     }
 
-
-    for (j = 0; j < NUM_OF_OPTIONS; j++) {
+    while (j < NUM_OPTIONS) {
         if (j == 0) {
             printf("Main Menu:\n");
         }
         else if (j == 3) {
             printf("Administrator-Only Menu:\n");
         }
-        printf("%d. %s\n", j + 1, menuItemTexts[j]);
+        printf("%d. %s\n", j + 1, menu[j].text);
+        j += 1;
     }
-
 
 }
 
@@ -95,7 +81,7 @@ MenuFunction getMenuChoice(MenuItem * menu)
     MenuFunction function;
 
     inputNumber = 0;
-    buffer = sizeof(int);
+    buffer = sizeof(buffer);
     enteredInput = (char *) malloc(buffer);
 
     printf("Select your options (1-9): ");
@@ -110,8 +96,9 @@ MenuFunction getMenuChoice(MenuItem * menu)
     inputNumber = strtol(enteredInput, &endPointer, 10);
     printf("Detected number: %d\n", inputNumber);
 
-    if (inputNumber > 0 && inputNumber <= NUM_OF_OPTIONS) {
-        return *(menu + (inputNumber - 1))->function; 
+    if (inputNumber > 0 && inputNumber <= NUM_OPTIONS) {
+        function = menu[inputNumber - 1].function;
+        return function;
     }
 
     return NULL;
