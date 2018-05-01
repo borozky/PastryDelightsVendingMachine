@@ -54,8 +54,8 @@
             "name": "Win32",
             "includePath": [
                 "C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/VC/Tools/MSVC/14.11.25503/include/*",
-                "C:/cygwin64/lib/gcc/x86_64-pc-cygwin/6.4.0/include",
-                "C:/cygwin64/usr/include",
+                "C:/Program Files (x86)/Windows Kits/10/Include/10.0.10240.0/ucrt",
+                "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.10240.0/ucrt/x64",
                 "${workspaceFolder}"
             ],
             "defines": [
