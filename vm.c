@@ -10,219 +10,134 @@
 #define DEFAULT_COIN_FILE "coins.dat"
 #define COIN_LINE_SIZE 64
 
-int retrieveCashRegister(FILE * coinFile, Coin cashRegister[NUM_DENOMS]);
-int retrieveStocks(FILE * stockFile, List * itemList);
+int initialize(VmSystem *vending_machine_system, int argc, char **argv);
+void config_vm_filenames(VmSystem *vending_machine_system, int argc, char **argv);
+void populate_cash_register(Coin cash_register[NUM_DENOMS], FILE *coin_file);
+void populate_stock_list(List *item_list, FILE *stock_file);
+
 
 int main(int argc, char ** argv)
 {
-    /* Retrieve the stocks */
-    FILE * stockFile;
-    List * itemList;
-    char * line;
-    char * token;
-    int lineNumber;
-    char * priceToken;
-    char * dollarsToken;
-    char * centsToken;
-    Node *tempNode;
+    VmSystem *vending_machine_system;
+    MenuItem *menus;
+    MenuFunction menu_function;
 
-    Stock * stock;
-    Price * price;
+    vending_machine_system = (VmSystem *) malloc(sizeof(*vending_machine_system));
+    config_vm_filenames(vending_machine_system, argc, argv);
 
-    stockFile = fopen(argv[1], "r");
-
-    line = (char*) malloc(sizeof(Stock));
-
-    if (stockFile == NULL) {
-        fprintf(stderr, "Stock file '%s' doesn't exists or unreadable", argv[1]);
+    if (systemInit(vending_machine_system) == FALSE) {
         return EXIT_FAILURE;
     }
 
-    itemList = create_list();
+    /* initialize menus here */
+    menus = (MenuItem *) malloc(sizeof(*menus) * NUM_OPTIONS);
+    initMenu(menus);
 
-    lineNumber = 0;
-    while (TRUE) {
-        stock = (Stock*) malloc(sizeof(Stock));
+    do {
+        menu_function = getMenuChoice(menus);
+        if (menu_function != NULL) {
+            menu_function(vending_machine_system);
+        }
 
-        fgets(line, sizeof(Stock), stockFile);
-        if (feof(stockFile)) {
+        if (menu_function == abortProgram) {
             break;
         }
-        printf("%s", line);
-
-        token = strtok(line, STOCK_DELIM);
-        strcpy(stock->id, token);
-
-        token = strtok(NULL, STOCK_DELIM);
-        strcpy(stock->name, token);
-
-        token = strtok(NULL, STOCK_DELIM);
-        strcpy(stock->desc, token);
-
-        priceToken = strtok(NULL, STOCK_DELIM);
-
-        token = strtok(NULL, STOCK_DELIM);
-        stock->onHand = atoi(token);
-
-        price = (Price*) malloc(sizeof(Price));
-        dollarsToken = strtok(priceToken, ".");
-        centsToken = strtok(NULL, ".");
-        price->dollars = atoi(dollarsToken);
-        price->cents = atoi(centsToken);
-        stock->price = *price;
-
-
-        add_stock_item(itemList, stock);
     }
-
-    tempNode = (*itemList).head;
-    while (tempNode != NULL) {
-        printf("Stock ID: %s\n", tempNode->data->id);
-        printf("Stock Name: %s\n", tempNode->data->name);
-        printf("Stock Description: %s\n", tempNode->data->desc);
-        printf("Stock Price: %d.%02d\n", tempNode->data->price.dollars, tempNode->data->price.cents);
-        printf("Stock quantity: %d\n", tempNode->data->onHand);
-        tempNode = (*tempNode).next;
-    }
-
-
-
-    fclose(stockFile);
-
-
-
-
-
-    /* Retrieve the coins
-    FILE * coinFile;
-    Coin cashRegister[NUM_DENOMS];
-
-    coinFile = fopen(argv[2], "r");
-    if (coinFile == NULL) {
-        fprintf(stderr, "Coin file '%s' doesn't exists or unreadable", argv[2]);
-        return EXIT_FAILURE;
-    }
-    
-    retrieveCashRegister(coinFile, cashRegister);
-    printf("Cash register: %d\n", cashRegister[1].count);
-    fclose(coinFile);
-    */
+    while (TRUE);
 
     return EXIT_SUCCESS;
 }
 
 
-void setup (int argc, char ** argv) {
-    VmSystem vmSystem;
-    MenuFunction menuChoice;
-    MenuItem menuItem;
 
-    /**
-     * 1st argument is the executable and will always be given
-     * 2nd argument is the stock file. This should be optional.
-     * 3rd argument is the coin file. This should be optional.
-     */
+int initialize(VmSystem *vending_machine_system, int argc, char **argv) {
+    FILE *stock_file;
+    FILE *coin_file;
 
-    printf("ARGC %d\n", argc);
+    /* helper function to populate file names of VmSystem */
+    config_vm_filenames(vending_machine_system, argc, argv);
+
+    /* setup stock and coin files */
+    stock_file = fopen((*vending_machine_system).stockFileName, "r");
+    coin_file = fopen((*vending_machine_system).coinFileName, "r");
+
+    /* both stock and coin files must exist */
+    if (stock_file == NULL) {
+        fprintf(stderr, "Stock file '%s' doesn't exists or unreadable", argv[1]);
+        return EXIT_FAILURE;
+    }
+    if (stock_file == NULL) {
+        fprintf(stderr, "Stock file '%s' doesn't exists or unreadable", argv[1]);
+        return EXIT_FAILURE;
+    }
+
+    (*vending_machine_system).itemList = create_list();
+
+    /* helper method to fill up item_list and cash_register */
+    populate_stock_list((*vending_machine_system).itemList, stock_file);
+    populate_cash_register((*vending_machine_system).cashRegister, coin_file);
+
+    /* everything is in memory */
+    fclose(stock_file);
+    fclose(coin_file);
+
+    return EXIT_SUCCESS;
+}
+
+
+void config_vm_filenames(VmSystem *vending_machine_system, int argc, char **argv) {
     switch (argc) {
         /* both stock and coin file args are missing */
         case 1:
-            vmSystem.stockFileName = DEFAULT_STOCK_FILE;
-            vmSystem.coinFileName = DEFAULT_COIN_FILE;
+            (*vending_machine_system).stockFileName = DEFAULT_STOCK_FILE;
+            (*vending_machine_system).coinFileName = DEFAULT_COIN_FILE;
             break;
         /* stock file is given, coin file arg is missing */
         case 2:
-            vmSystem.stockFileName = argv[1];
-            vmSystem.coinFileName = DEFAULT_COIN_FILE;
+            (*vending_machine_system).stockFileName = argv[1];
+            (*vending_machine_system).coinFileName = DEFAULT_COIN_FILE;
             break;
         /* both stock and coin files are supplied */
         case 3:
         default:
-            vmSystem.stockFileName = argv[1];
-            vmSystem.coinFileName = argv[2];
+            (*vending_machine_system).stockFileName = argv[1];
+            (*vending_machine_system).coinFileName = argv[2];
             break;
     }
-    
-    initMenu(&menuItem);
-    
-    do {
-        menuChoice = getMenuChoice(&menuItem);
-    }
-    while (menuChoice == NULL);
 }
 
 
 
-int retrieveCashRegister(FILE * coinFile, Coin cashRegister[NUM_DENOMS]) {
-    Boolean validFormat;
-    int lineNumber;
-    char line[COIN_LINE_SIZE];
+void populate_cash_register(Coin cash_register[NUM_DENOMS], FILE *coin_file) {
+    char *line;
+    int line_num;
 
-    char *denom;
-    int denominationInt;
-    char * denomEndPtr;
+    line_num = 0;
+    line = (char *) malloc(sizeof(*line) * 64);
 
-    char *coinQuantityStr;
-    int coinQuantity;
-    char * coinQuantityEndPtr;
-
-    validFormat = TRUE;
-
-    lineNumber = 0;
     while (TRUE) {
-        fgets(line, COIN_LINE_SIZE, coinFile);
-        if (feof(coinFile)) {
+        fgets(line, COIN_LINE_SIZE, coin_file);
+        if (feof(coin_file)) {
             break;
         }
-        /*printf("LINE: %s", line);*/
+        cash_register[line_num] = *create_coin(line);
+        line_num += 1;
+    }
+}
 
-        denom = strtok(line, COIN_DELIM);
-        /*printf("DENOMINATION: %s\n", denom);*/
-        denominationInt = strtol(denom, &denomEndPtr, 10);
-        /*printf("DENOMINATION INTEGER: %d\n", denominationInt);*/
 
-        coinQuantityStr = strtok(NULL, COIN_DELIM); /* to get 2nd, 3rd, 4th, ... nth token, use NULL as first param */
-        /*printf("COIN QUANTITY STRING: %s\n", coinQuantityStr);*/
-        coinQuantity = strtol(coinQuantityStr, &coinQuantityEndPtr, 10);
-        /*printf("COIN QUANTITY: %d\n", coinQuantity);*/
 
-        switch (denominationInt) {
-            case 1000:
-                cashRegister[lineNumber].denom = TEN_DOLLARS;
-                break;
-            case 500:
-                cashRegister[lineNumber].denom = FIVE_DOLLARS;
-                break;
-            case 200:
-                cashRegister[lineNumber].denom = TWO_DOLLARS;
-                break;
-            case 100:
-                cashRegister[lineNumber].denom = ONE_DOLLAR;
-                break;
-            case 50:
-                cashRegister[lineNumber].denom = FIFTY_CENTS;
-                break;
-            case 20:
-                cashRegister[lineNumber].denom = TWENTY_CENTS;
-                break;
-            case 10:
-                cashRegister[lineNumber].denom = TEN_CENTS;
-                break;
-            case 5:
-                cashRegister[lineNumber].denom = FIVE_CENTS;
-                break;
-            default:
-                validFormat = FALSE;
-                break;
+void populate_stock_list(List *item_list, FILE *stock_file) {
+    char *line;
+
+    line = (char *) malloc(sizeof(*line) * 1024);
+
+    while (TRUE) {
+        fgets(line, sizeof(Stock), stock_file);
+        if (feof(stock_file)) {
+            break;
         }
-        cashRegister[lineNumber].count = coinQuantity;
 
-        lineNumber += 1;
+        add_stock_item(item_list, create_stock(line));
     }
-
-    if (validFormat) {
-        return 1;
-    }
-
-    return 0;
 }
