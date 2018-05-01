@@ -91,7 +91,7 @@ MenuFunction getMenuChoice(MenuItem * menu)
     int buffer;
     char* enteredInput;
     int inputNumber;
-    char *endPointer; /* all non string inputs will be collected here */
+    char *endPointer; /* all non int inputs will be collected here */
     MenuFunction function;
 
     inputNumber = 0;
