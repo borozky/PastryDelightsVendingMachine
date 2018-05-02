@@ -141,6 +141,46 @@ Boolean loadCoins(VmSystem * system, const char * fileName)
  **/
 Boolean saveStock(VmSystem * system)
 {
+    FILE *stock_file;
+    Stock *stock;
+    Node *node;
+    char *line;
+
+    stock_file = fopen((*system).stockFileName, "a");
+    if (stock_file == NULL) {
+        fprintf(stderr, "File '%s' cannot be found or unwritable.", (*system).stockFileName);
+        return FALSE;
+    }
+
+    node = (*system).itemList->head;
+    while (node != NULL) {
+        stock = (*node).data;
+
+        line = (char *) malloc(sizeof(*line) * sizeof(*stock));
+
+        sprintf(line, "%s%s%s%s%s%s%d.%02d%s%d",
+            (*stock).id,
+            STOCK_DELIM,
+            (*stock).name,
+            STOCK_DELIM,
+            (*stock).desc,
+            STOCK_DELIM,
+            (*stock).price.dollars,
+            (*stock).price.cents,
+            STOCK_DELIM,
+            (*stock).onHand
+        );
+
+        printf("LINE: %s\n", line);
+
+        /* TODO: Save to stock.dat */
+
+        node = (*node).next;
+
+    }
+
+    fclose(stock_file);
+
     return FALSE;
 }
 
@@ -149,6 +189,37 @@ Boolean saveStock(VmSystem * system)
  **/
 Boolean saveCoins(VmSystem * system)
 {
+    FILE *coin_file;
+    char *line;
+    int line_number;
+    int cents;
+
+    coin_file = fopen((*system).coinFileName, "a");
+    if (coin_file == NULL) {
+        fprintf(stderr, "Coin file '%s' doesn't exists or unreadable\n", (*system).coinFileName);
+        return FALSE;
+    }
+
+    line_number = 0;
+    while (line_number < NUM_DENOMS) {
+        line = (char *) malloc(COIN_LINE_SIZE);
+
+        cents = get_cent_value((*system).cashRegister[line_number].denom);
+        
+        sprintf(line, "%d%s%d",
+            cents,
+            COIN_DELIM,
+            (*system).cashRegister[line_number].count
+        );
+
+        printf("COIN: %s\n", line);
+
+        line_number += 1;
+    }
+
+
+
+    fclose(coin_file);
     return FALSE;
 }
 
@@ -174,7 +245,7 @@ void displayItems(VmSystem * system)
 
     while (node != NULL) {
         stock = (*node).data;
-        printf("%5s | %30s | %10d | $%-2d.%5d \n",
+        printf("%5s | %30s | %10d | $%2d.%02d \n",
             (*stock).id,
             (*stock).name,
             (*stock).onHand,
@@ -204,6 +275,9 @@ void purchaseItem(VmSystem * system)
  **/
 void saveAndExit(VmSystem * system)
 { 
+    printf("SAVE AND EXIT started.\n");
+    saveStock(system);
+    saveCoins(system);
     printf("SAVE AND EXIT\n");
     return;
 }
@@ -236,7 +310,17 @@ void removeItem(VmSystem * system)
  **/
 void displayCoins(VmSystem * system)
 { 
-    printf("DISPLAY COINS\n");
+    int i;
+    int cents;
+
+    printf("COINS\n");
+
+    for (i = 0; i < NUM_DENOMS; i++) {
+        cents = get_cent_value((*system).cashRegister[i].denom);
+
+        printf("%d%s%d\n", cents, COIN_DELIM, (*system).cashRegister[i].count);
+    }
+
     return;
 }
 
@@ -273,4 +357,28 @@ void abortProgram(VmSystem * system)
 { 
     printf("ABORT PROGRAM\n");
     return;
+}
+
+int get_cent_value(Denomination denomination) {
+    switch (denomination) {
+        case TEN_DOLLARS:
+            return 1000;
+        case FIVE_DOLLARS:
+            return 500;
+        case TWO_DOLLARS:
+            return 200;
+        case ONE_DOLLAR:
+            return 100;
+        case FIFTY_CENTS:
+            return 50;
+        case TWENTY_CENTS:
+            return 20;
+        case TEN_CENTS:
+            return 10;
+        case FIVE_CENTS:
+            return 5;
+        default:
+            fprintf(stderr, "Not a valid denomination");
+            return 0;
+    }
 }
