@@ -36,25 +36,25 @@ Coin *create_coin(char *line) {
             (*coin).denom = TEN_DOLLARS;
             break;
         case 500:
-            (*coin).denom = TEN_DOLLARS;
+            (*coin).denom = FIVE_DOLLARS;
             break;
         case 200:
-            (*coin).denom = TEN_DOLLARS;
+            (*coin).denom = TWO_DOLLARS;
             break;
         case 100:
-            (*coin).denom = TEN_DOLLARS;
+            (*coin).denom = ONE_DOLLAR;
             break;
         case 50:
-            (*coin).denom = TEN_DOLLARS;
+            (*coin).denom = FIFTY_CENTS;
             break;
         case 20:
-            (*coin).denom = TEN_DOLLARS;
+            (*coin).denom = TWENTY_CENTS;
             break;
         case 10:
-            (*coin).denom = TEN_DOLLARS;
+            (*coin).denom = TEN_CENTS;
             break;
         case 5:
-            (*coin).denom = TEN_DOLLARS;
+            (*coin).denom = FIVE_CENTS;
             break;
         default:
             free(coin);
