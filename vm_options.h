@@ -28,4 +28,7 @@ void resetStock(VmSystem * system);
 void resetCoins(VmSystem * system);
 void abortProgram(VmSystem * system);
 
+/* gets the cent value based on denomination */
+int get_cent_value(Denomination denomination);
+
 #endif
