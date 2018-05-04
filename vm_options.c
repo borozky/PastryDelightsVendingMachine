@@ -11,6 +11,10 @@
 #define STOCK_LINE_SIZE 1024
 #define COIN_LINE_SIZE 64
 
+int compare_coins(const void *coin1, const void *coin2);
+int size_of_longest_stock_name(List *stock_list);
+void printStock(Stock *stock, int longest_name_size);
+
 /**
  * vm_options.c this is where you need to implement the system handling
  * functions (e.g., init, free, load, save) and the main options for
@@ -231,30 +235,23 @@ void displayItems(VmSystem * system)
 { 
     Node *node;
     Stock *stock;
+    int longest_name_size = size_of_longest_stock_name((*system).itemList);
 
-    node = (*system).itemList->head;
     printf("Items Menu\n");
-
+    node = (*system).itemList->head;
     if (node == NULL) {
         printf("Sorry, there are no items in the list\n");
         return;
     }
 
-    printf("%5s | %30s | %10s | %7s \n", "ID", "Name", "Available", "Price");
-    printf("---------------------------------------------------\n");
+    printf(" %-5s | %-*s | %-10s | %-7s \n", "ID", longest_name_size, "Name", "Available", "Price");
+    printf("---------------------------------------------------------\n");
 
     while (node != NULL) {
         stock = (*node).data;
-        printf("%5s | %30s | %10d | $%2d.%02d \n",
-            (*stock).id,
-            (*stock).name,
-            (*stock).onHand,
-            (*stock).price.dollars,
-            (*stock).price.cents
-        );
+        printStock(stock, longest_name_size);
         node = (*node).next;
     }
-    printf("DISPLAY ITEMS\n");
     return;
 }
 
@@ -312,13 +309,25 @@ void displayCoins(VmSystem * system)
 { 
     int i;
     int cents;
+    char denomination_name[13];
 
-    printf("COINS\n");
+    printf("Coins Summary\n");
+    printf("---------\n");
+    printf("Denomination | Count\n\n");
+
+    /* sort by denomination value - 5 cents is 0 -> 10 dollars is 7 */
+    qsort((*system).cashRegister, NUM_DENOMS, sizeof((*(*system).cashRegister)), compare_coins);
 
     for (i = 0; i < NUM_DENOMS; i++) {
         cents = get_cent_value((*system).cashRegister[i].denom);
 
-        printf("%d%s%d\n", cents, COIN_DELIM, (*system).cashRegister[i].count);
+        if (cents < 100) {
+            sprintf(denomination_name, "%d cents", cents);
+        } else {
+            sprintf(denomination_name, "%d dollars", (cents / 100));
+        }
+
+        printf("%12s | %d\n", denomination_name, (*system).cashRegister[i].count);
     }
 
     return;
@@ -381,4 +390,57 @@ int get_cent_value(Denomination denomination) {
             fprintf(stderr, "Not a valid denomination");
             return 0;
     }
+}
+
+int compare_coins(const void *coin1, const void *coin2) {
+    Coin *c1;
+    Coin *c2;
+
+    c1 = (Coin *) coin1;
+    c2 = (Coin *) coin2;
+
+    if (c1->denom < c2->denom) {
+        return -1;
+    }
+    else if (c1->denom > c2->denom) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+int size_of_longest_stock_name(List *stock_list) {
+    Node *node;
+    Stock *stock;
+    int size;
+    char *name;
+
+    size = 0;
+    if (stock_list == NULL) {
+        return size;
+    }
+
+    node = (*stock_list).head;
+    while (node != NULL) {
+        stock = (*node).data;
+        if (strlen(stock->name) > size) {
+            size = strlen(stock->name);
+        }
+        node = (*node).next;
+    }
+
+    return size;
+}
+
+void printStock(Stock *stock, int longest_name_size) {
+    if (stock == NULL || longest_name_size < 0) {
+        return;
+    }
+
+    printf(" %-5s |", (*stock).id);
+    printf(" %-*s |", longest_name_size, (*stock).name);
+    printf(" %-10d |", (*stock).onHand);
+    printf(" $%2d.%02d ", (*stock).price.dollars, (*stock).price.cents);
+    printf("\n");
 }
