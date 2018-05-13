@@ -261,6 +261,55 @@ void displayItems(VmSystem * system)
  **/
 void purchaseItem(VmSystem * system)
 { 
+    char *id;
+    char *payment;
+    int payment_in_cents;
+    Stock *stock;
+
+    id = nextline("Please enter the id of the item your wish to purchase", ID_LEN + NULL_SPACE);
+    stock = get_stock_item_by_id(system->itemList, id);
+
+    if (stock == NULL) {
+        printf("Item with ID %s cannot be found", id);
+        return;
+    }
+
+    if (stock->onHand <= 0) {
+        printf("Item \"%s\" has ran out of stock.\n", stock->name);
+        return;
+    }
+
+    printf("You have selected \"%s  %s\". This will cost you $%d.%02d\n", 
+        stock->name, stock->desc, stock->price.dollars, stock->price.cents
+    );
+
+    printf("Please hand over your payment - type in the value of each note/coin in cents\n");
+    printf("Press enter twice to cancel this purchase.\n");
+
+    payment_in_cents = (stock->price.dollars * 100) + stock->price.cents;
+
+    do {
+        printf("You still need to give us $%d.%02d", (payment_in_cents / 100), payment_in_cents % 100);
+        payment = nextline("", 10);
+        payment_in_cents = atoi(payment);
+
+        if (is_valid_denomination(payment_in_cents) == FALSE) {
+            printf("%d is not a valid denomination of money.", payment_in_cents);
+            continue;
+        }
+
+        
+
+        
+    }
+    while (strcmp(payment, "\n\n") == 0);
+
+
+
+    
+
+    
+
     printf("PURCHASE ITEMS\n");
     return;
 }
@@ -285,8 +334,34 @@ void saveAndExit(VmSystem * system)
  **/
 void addItem(VmSystem * system)
 { 
-    printf("ADD ITEM\n");
-    return;
+    char price_str[10];
+    double price;
+    int dollars, cents;
+    
+    Stock *stock = (Stock *) malloc(sizeof(Stock));
+
+    strcpy(stock->id, next_stock_id(system->itemList));
+    strcpy(stock->name, nextline("Enter the item name: ", sizeof(stock->name)));
+    strcpy(stock->desc, nextline("Enter the item description: ", sizeof(stock->desc)));
+
+    do {
+        strcpy(price_str, nextline("Enter the price for this item: ", 10));
+        price = atof(price_str);
+        if (price == 0.0) {
+            continue;
+        }
+        dollars = (int) price;
+        cents = (int) ((double) price - (double)dollars);
+        break;
+    }
+    while (TRUE);
+
+    stock->price.dollars = dollars;
+    stock->price.cents = cents;
+    stock->onHand = 0;
+
+    add_stock_item(system->itemList, stock);
+    printf("This item \"%s - %s\" has now been added to the menu.\n", stock->name, stock->desc);
 }
 
 /**
@@ -295,8 +370,32 @@ void addItem(VmSystem * system)
  **/
 void removeItem(VmSystem * system)
 { 
-    printf("REMOVE ITEM\n");
-    return;
+    char *id;
+    char *name;
+    char *description;
+    Stock *stock;
+
+    Boolean isRemoved = FALSE;
+
+    id = nextline("Enter the id of the item to remove from the menu: ", ID_LEN + NULL_SPACE);
+    stock = get_stock_item_by_id(system->itemList, id);
+
+    if (stock == NULL) {
+        printf("Cannot remove item for ID %s because it doesn't exists\n", id);
+        return;
+    }
+
+    strcpy(name, stock->name);
+    strcpy(description, stock->desc);
+
+    isRemoved = remove_stock_item_by_id(system->itemList, id);
+
+    if (isRemoved == FALSE) {
+        printf("Cannot remove item for ID %s\n", id);
+        return;
+    }
+
+    printf("\"%s - %s  %s\" has been removed from the system.\n", id, name, description);
 }
 
 /**
@@ -354,6 +453,7 @@ void resetStock(VmSystem * system)
  **/
 void resetCoins(VmSystem * system)
 { 
+
     printf("RESET COINS\n");
     return;
 }
@@ -364,32 +464,9 @@ void resetCoins(VmSystem * system)
  **/
 void abortProgram(VmSystem * system)
 { 
+    systemFree(system);
     printf("ABORT PROGRAM\n");
     return;
-}
-
-int get_cent_value(Denomination denomination) {
-    switch (denomination) {
-        case TEN_DOLLARS:
-            return 1000;
-        case FIVE_DOLLARS:
-            return 500;
-        case TWO_DOLLARS:
-            return 200;
-        case ONE_DOLLAR:
-            return 100;
-        case FIFTY_CENTS:
-            return 50;
-        case TWENTY_CENTS:
-            return 20;
-        case TEN_CENTS:
-            return 10;
-        case FIVE_CENTS:
-            return 5;
-        default:
-            fprintf(stderr, "Not a valid denomination");
-            return 0;
-    }
 }
 
 int compare_coins(const void *coin1, const void *coin2) {

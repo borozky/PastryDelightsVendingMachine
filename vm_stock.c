@@ -208,5 +208,19 @@ Stock *create_stock(char *line) {
     return stock;
 }
 
+char *next_stock_id(List *list) {
+    char *id;
+    int last_id_num;
+    char *endPointer;
+
+    Node *node = get_last_node(list);
+    Stock *stock = node->data;
+
+    last_id_num = strtol(strtok(stock->id, "I"), &endPointer, 10);
+    id = (char *) malloc(ID_LEN + NULL_SPACE);
+    sprintf(id, "I%04d", last_id_num + 1);
+    return id;
+}
+
 
 

@@ -68,3 +68,44 @@ Coin *create_coin(char *line) {
 
     return coin;
 }
+
+Boolean is_valid_denomination(int cents) {
+    switch (cents) {
+        case 1000:
+        case 500:
+        case 200:
+        case 100:
+        case 50:
+        case 20:
+        case 10:
+        case 5:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+int get_cent_value(Denomination denomination) {
+    switch (denomination) {
+        case TEN_DOLLARS:
+            return 1000;
+        case FIVE_DOLLARS:
+            return 500;
+        case TWO_DOLLARS:
+            return 200;
+        case ONE_DOLLAR:
+            return 100;
+        case FIFTY_CENTS:
+            return 50;
+        case TWENTY_CENTS:
+            return 20;
+        case TEN_CENTS:
+            return 10;
+        case FIVE_CENTS:
+            return 5;
+        default:
+            fprintf(stderr, "Not a valid denomination");
+            return 0;
+    }
+}
+

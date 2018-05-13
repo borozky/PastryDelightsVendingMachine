@@ -19,3 +19,5 @@
 #endif
 
 Coin *create_coin(char *line);
+Boolean is_valid_denomination(int cents);
+int get_cent_value(Denomination denomination);
