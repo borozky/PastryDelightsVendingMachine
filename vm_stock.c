@@ -16,6 +16,9 @@
  * create list, free list, create node, free node, insert node, etc...
  */
 
+/**
+ * Create new list
+ */
 List *create_list(void) {
     List *list;
 
@@ -29,6 +32,9 @@ List *create_list(void) {
     return list;
 }
 
+/**
+ * Create Stock node.
+ */
 Node *create_node(void) {
     Node *node;
 
@@ -43,6 +49,9 @@ Node *create_node(void) {
     return node;
 }
 
+/**
+ * Gets the last node from the list
+ */
 Node *get_last_node(List* list) {
     Node *temp;
     temp = (*list).head;
@@ -58,15 +67,21 @@ Node *get_last_node(List* list) {
     return temp;
 }
 
+/**
+ * Push the node at the end of the list
+ */
 Boolean push_node(List *list, Node *node) {
     Node *lastNode;
 
+    /* list and node are required */
     if (list == NULL || node == NULL) {
         return FALSE;
     }
 
     lastNode = get_last_node(list);
-    /* if has no last node (aka no elements in the list) */
+
+    /* if no elements in the list, 
+    the node that will be pushed will be the first node */
     if ( lastNode == NULL ) {
         (*list).head = node;
     }
@@ -79,6 +94,9 @@ Boolean push_node(List *list, Node *node) {
     return TRUE;
 }
 
+/**
+ * Creates a new node at the end of the list
+ */
 Node *push_new_node(List *list) {
     Boolean isPushed;
     Node *newNode;
@@ -96,6 +114,9 @@ Node *push_new_node(List *list) {
     return newNode;
 }
 
+/**
+ * Add stock item at the end of the list
+ */
 Boolean add_stock_item(List *list, Stock *stockItem) {
     Node *lastNode;
 
@@ -108,6 +129,9 @@ Boolean add_stock_item(List *list, Stock *stockItem) {
     return TRUE;
 }
 
+/**
+ * Gets the stock by stock id
+ */
 Stock *get_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
     Node *tempNode;
     Stock *currentStock;
@@ -126,6 +150,9 @@ Stock *get_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
     return NULL;
 }
 
+/**
+ * Remove stock item by id
+ */
 Boolean remove_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
     Node *previousNode;
     Node *currentNode;
@@ -145,7 +172,7 @@ Boolean remove_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
 
         /* when we arrive at this point means ID has been found */
 
-        /* if current node is the first node */
+        /* if current node is the first node, make the next node the first */
         if (previousNode == NULL) {
             (*list).head = (*currentNode).next;
         }
@@ -170,14 +197,11 @@ Stock *create_stock(char *line) {
     Price *price;
     int onHand;
 
-    /* stock = new Stock(); */
+    /* new stock and new price */
     stock = (Stock *) malloc(sizeof(*stock));
-
-    /* Process PRICE */
     price = (Price *) malloc(sizeof(*price));
 
-
-    /* copy strings. Assigning strings produce compile errors  */
+    /* copy strings instead of assigning them  */
 
     /* ID */
     token = strtok(line, STOCK_DELIM);
@@ -199,15 +223,21 @@ Stock *create_stock(char *line) {
     onHand = atoi(token);
     (*stock).onHand = onHand;
 
+    /* dollars */
     token = strtok(priceToken, ".");
     (*price).dollars = atoi(token);
+
+    /* cents */
     token = strtok(NULL, ".");
     (*price).cents = atoi(token);
-    (*stock).price = *price;
 
+    (*stock).price = *price;
     return stock;
 }
 
+/**
+ * Gets the next stock id based on number of items in the list
+ */
 char *next_stock_id(List *list) {
     char *id;
     int last_id_num;
