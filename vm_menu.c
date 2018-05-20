@@ -10,6 +10,8 @@
  * vm_menu.c handles the initialisation and management of the menu array.
  **/
 
+int get_menu_number();
+
 /**
  * In this function you need to initialise the array of menu items
  * according to the text to be displayed for the menu. This array is
@@ -74,26 +76,10 @@ void initMenu(MenuItem * menu)
  **/
 MenuFunction getMenuChoice(MenuItem * menu)
 {
-    int buffer;
-    char* enteredInput;
-    int inputNumber;
-    char *endPointer; /* all non int inputs will be collected here */
     MenuFunction function;
+    int inputNumber = 0;
 
-    inputNumber = 0;
-    buffer = sizeof(buffer);
-    enteredInput = (char *) malloc(buffer);
-
-    printf("Select your options (1-9): ");
-    enteredInput = fgets(enteredInput, buffer, stdin);
-    fflush(stdin);
-    printf("Entered: %s\n", enteredInput);
-
-    /**
-     * endPointer must not be NULL so don't initialize 
-     * endPointer as '**endPointer' becasue it will be 
-     * NULL to begin with */
-    inputNumber = strtol(enteredInput, &endPointer, 10);
+    inputNumber = get_menu_number();
     printf("Detected number: %d\n", inputNumber);
 
     if (inputNumber > 0 && inputNumber <= NUM_OPTIONS) {
@@ -102,5 +88,18 @@ MenuFunction getMenuChoice(MenuItem * menu)
     }
 
     return NULL;
-
 }
+
+int get_menu_number() {
+    int inputNumber = 0;
+
+    inputNumber = nextint_required("Select your options (1-9): ", "Invalid input\n");
+
+    if (inputNumber > 0 && inputNumber <= NUM_OPTIONS) {
+        return inputNumber;
+    }
+    
+    printf("Please choose 1 - 9\n");
+    return get_menu_number();
+}
+
