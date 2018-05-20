@@ -37,6 +37,8 @@ typedef enum boolean
 void readRestOfLine();
 
 char *nextline(char *message, int size);
-int *nextInt(char *message);
+int nextint(char *message);
+char *nextline_required(char *message, int size, char *invalid_message);
+int nextint_required(char *message, char *invalid_message);
 
 #endif

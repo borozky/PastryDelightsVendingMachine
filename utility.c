@@ -24,36 +24,41 @@ void readRestOfLine()
 
 char *nextline(char *message, int size) {
     char *line = (char *) malloc(size);
-
-    do {
-        printf("%s", message);
-        line = fgets(line, size, stdin);
-        if (strlen(line) > 0) {
-            break;
-        }
-    } while (TRUE);
-
+    printf("%s", message);
+    fgets(line, size, stdin);
+    fflush(stdin);
     return strtok(line, "\n");
 }
 
+char *nextline_required(char *message, int size, char* invalid_message) {
+    char *line;
+
+    line = nextline(message, size);
+    if (line != NULL && strlen(line) > 0) {
+        return line;
+    }
+
+    printf("%s", invalid_message);
+    return nextline_required(message, size, invalid_message);
+}
+
+
 int nextint(char *message) {
-    /**
-     * max integer is 2,147,483,647 w/c is 10 digits,
-     * the remaining 1 slot is for null space
-     */
-    char line[11];
+    char *line;
     int integer;
     char *endPointer;
 
-    do {
-        printf("%s", message);
-        fgets(line, sizeof(line), stdin);
-        integer = strtol(line, &endPointer, 10);
-        if (strlen(endPointer) == 0) {
-            break;
-        }
-    } 
-    while (TRUE);
+    line = nextline(message, 11);
+    integer = strtol(line, &endPointer, 10);
+    return integer;
+}
 
+int nextint_required(char *message, char *invalid_message) {
+    char *line;
+    int integer;
+    char *endPointer;
+
+    line = nextline_required(message, 11, invalid_message);
+    integer = strtol(line, &endPointer, 10);
     return integer;
 }
