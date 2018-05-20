@@ -14,6 +14,15 @@
 int compare_coins(const void *coin1, const void *coin2);
 int size_of_longest_stock_name(List *stock_list);
 void printStock(Stock *stock, int longest_name_size);
+char *get_payment();
+Boolean add_payment(int *payments, int payment);
+void display_payments(int *payments);
+int *get_all_payments(int item_price_in_cents);
+int get_total_amount(int *payments);
+int *get_coins_change(int change, Coin cash_register[NUM_DENOMS]);
+void display_change(int *change);
+void add_to_cash_register(VmSystem *vmSystem, int *payment);
+void refund(VmSystem *vmSystem, int *payments);
 
 /**
  * vm_options.c this is where you need to implement the system handling
@@ -264,9 +273,15 @@ void purchaseItem(VmSystem * system)
     char *id;
     char *payment;
     int payment_in_cents;
+    int item_price;
+    int *payments;
+    int amount_paid;
+    int change;
+    int *coins_change;
+
     Stock *stock;
 
-    id = nextline("Please enter the id of the item your wish to purchase", ID_LEN + NULL_SPACE);
+    id = nextline_required("Please enter the id of the item your wish to purchase: ", ID_LEN + NULL_SPACE, "Not a valid ID\n");
     stock = get_stock_item_by_id(system->itemList, id);
 
     if (stock == NULL) {
@@ -286,32 +301,35 @@ void purchaseItem(VmSystem * system)
     printf("Please hand over your payment - type in the value of each note/coin in cents\n");
     printf("Press enter twice to cancel this purchase.\n");
 
-    payment_in_cents = (stock->price.dollars * 100) + stock->price.cents;
+    item_price = (stock->price.dollars * 100) + stock->price.cents;
 
-    do {
-        printf("You still need to give us $%d.%02d", (payment_in_cents / 100), payment_in_cents % 100);
-        payment = nextline("", 10);
-        payment_in_cents = atoi(payment);
-
-        if (is_valid_denomination(payment_in_cents) == FALSE) {
-            printf("%d is not a valid denomination of money.", payment_in_cents);
-            continue;
-        }
-
-        
-
-        
+    payments = get_all_payments(item_price);
+    if (payments == NULL) {
+        printf("Purchase cancelled.\n");
+        return;
     }
-    while (strcmp(payment, "\n\n") == 0);
 
+    add_to_cash_register(system, payments);
+    stock->onHand -= 1;
 
+    /* process transaction */
+    amount_paid = get_total_amount(payments);
+    change = amount_paid - item_price;
 
-    
+    /* pay the change first*/
+    coins_change = get_coins_change(change, system->cashRegister);
 
-    
-
-    printf("PURCHASE ITEMS\n");
-    return;
+    /* if for some reason, seller cannot pay the change, refund and cancel transaction */
+    if (get_total_amount(coins_change) != change) {
+        refund(system, payments);
+        stock->onHand += 1;
+        printf("Sorry, we cannot send back the change. {TODO: reason}");
+    } 
+    else {
+        printf("Thank you. Here is your %s, and your change of $%d.%02d: ", stock->name, (change / 100), (change % 100));
+        display_change(coins_change);
+        printf("\n");
+    }
 }
 
 /**
@@ -321,11 +339,11 @@ void purchaseItem(VmSystem * system)
  **/
 void saveAndExit(VmSystem * system)
 { 
-    printf("SAVE AND EXIT started.\n");
     saveStock(system);
+    printf("Stock has been saved to %s\n", system->stockFileName);
+
     saveCoins(system);
-    printf("SAVE AND EXIT\n");
-    return;
+    printf("Coins has been saved to %s\n", system->coinFileName);
 }
 
 /**
@@ -440,7 +458,7 @@ void displayCoins(VmSystem * system)
  **/
 void resetStock(VmSystem * system)
 { 
-    printf("RESET STOCK\n");
+    loadStock(system, DEFAULT_STOCK_FILE);
     return;
 }
 
@@ -453,8 +471,7 @@ void resetStock(VmSystem * system)
  **/
 void resetCoins(VmSystem * system)
 { 
-
-    printf("RESET COINS\n");
+    loadCoins(system, DEFAULT_COIN_FILE);
     return;
 }
 
@@ -465,7 +482,6 @@ void resetCoins(VmSystem * system)
 void abortProgram(VmSystem * system)
 { 
     systemFree(system);
-    printf("ABORT PROGRAM\n");
     return;
 }
 
@@ -521,3 +537,185 @@ void printStock(Stock *stock, int longest_name_size) {
     printf(" $%2d.%02d ", (*stock).price.dollars, (*stock).price.cents);
     printf("\n");
 }
+
+char *get_payment() {
+    char *line = (char *) malloc(4 * sizeof(char));
+    fgets(line, sizeof(line), stdin);
+
+    if (strtok(line, "\n") == NULL) {
+        readRestOfLine();
+        return NULL;
+    }
+    return line;
+}
+
+Boolean add_payment(int *payments, int payment) {
+    if (payments == NULL) {
+        return FALSE;
+    }
+
+    while (payments) {
+        if (*payments <= 0) {
+            *payments = payment;
+            return TRUE;
+        }
+        payments++;
+    }
+
+    return FALSE;
+}
+
+void display_payments(int *payments) {
+    if (payments == NULL) {
+        fprintf(stderr, "There are no payments");
+    }
+
+    printf("Payments:\n");
+    while (payments) {
+        if (*payments > 0) {
+            printf("%d\n", *payments);
+            payments++;
+            continue;
+        }
+        break;
+    }
+}
+
+int *get_all_payments(int item_price_in_cents) {
+    char *payment;
+    int *actual_payments;
+    int i = 0;
+
+    int payment_in_cents = 0;
+    int num_payments = 0;
+    int cents_remaining = item_price_in_cents;
+    int *payments = (int *) malloc(item_price_in_cents * sizeof(int));
+
+    do {
+        printf("You still need to give us $%d.%02d: ", (cents_remaining / 100), (cents_remaining % 100));
+
+        payment = get_payment();
+        if (payment == NULL) {
+            return NULL;
+        }
+
+        payment_in_cents = atoi(payment);
+        
+        if (is_valid_denomination(payment_in_cents) == FALSE) {
+            printf("%d is not a valid denomination of money.\n", payment_in_cents);
+            continue;
+        }
+
+        add_payment(payments, payment_in_cents);
+        num_payments += 1;
+        cents_remaining -= payment_in_cents;
+
+        if (cents_remaining > 0) {
+            continue;
+        } else {
+            break;
+        }
+
+    } while (TRUE);
+
+    actual_payments = (int *) malloc(num_payments * sizeof(int));
+    for (i = 0; i < num_payments; i++) {
+        actual_payments[i] = payments[i];
+    }
+    free(payments);
+
+    return actual_payments;
+}
+
+int get_total_amount(int *payments) {
+    int amount_paid = 0;
+    while (payments) {
+        if (is_valid_denomination(*payments) == FALSE) {
+            return amount_paid;
+        }
+
+        amount_paid += *payments;
+        payments++;
+    }
+    return amount_paid;
+}
+
+int *get_coins_change(int change, Coin cash_register[NUM_DENOMS]) {
+    int i = 0, j = 0;
+    int change_remaining = change;
+    int *coins = (int *) malloc(change * sizeof(int));
+    int num_coins = 0;
+    int num_avail_coins = 0;
+    int coins_added = 0;
+    int cent_value = 0;
+
+    while (change_remaining > 0) {
+        for (i = 0; i < NUM_DENOMS; i++) {
+            num_coins = 0;
+
+            /* skip this denomination is not enough coins available */
+            num_avail_coins = cash_register[i].count;
+            if (num_avail_coins <= 0) {
+                continue;
+            }
+
+            cent_value = get_cent_value(cash_register[i].denom);
+
+            /* if coin is enough to pay the change */
+            num_coins = change_remaining / cent_value;
+            for (j = coins_added; j < num_coins + coins_added; j++) {
+                coins[j] = cent_value;
+            }
+
+            coins_added += num_coins;
+            change_remaining %= cent_value;
+        }
+    }
+
+    return coins;
+}
+
+void display_change(int * change) {
+    while (change) {
+        if (is_valid_denomination(*change) == FALSE) {
+            return;
+        }
+
+        if (*change < 100) {
+            printf("%d c ", *change);
+        }
+        else {
+            printf("$%d ", (*change / 100));
+        }
+        change++;
+    }
+}
+
+void add_to_cash_register(VmSystem *vmSystem, int *payment) {
+    int i = 0;
+    while (payment) {
+        if (is_valid_denomination(*payment) == FALSE) {
+            return;
+        }
+
+        for (i = 0; i < NUM_DENOMS; i++) {
+            if ( *payment == get_cent_value(vmSystem->cashRegister[i].denom) ) {
+                vmSystem->cashRegister[i].count += 1;
+            }
+        }
+        payment++;
+    }
+}
+
+void refund(VmSystem *vmSystem, int *payment){
+    int i = 0;
+    while (payment) {
+        for (i = 0; i < NUM_DENOMS; i++) {
+            if ( *payment == get_cent_value(vmSystem->cashRegister[i].denom) ) {
+                vmSystem->cashRegister[i].count -= 1;
+            }
+        }
+        payment++;
+    }
+}
+
