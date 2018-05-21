@@ -10,8 +10,6 @@
  * vm_menu.c handles the initialisation and management of the menu array.
  **/
 
-int get_menu_number();
-
 /**
  * In this function you need to initialise the array of menu items
  * according to the text to be displayed for the menu. This array is
@@ -80,7 +78,6 @@ MenuFunction getMenuChoice(MenuItem * menu)
     int inputNumber = 0;
 
     inputNumber = get_menu_number();
-    printf("Detected number: %d\n", inputNumber);
 
     if (inputNumber > 0 && inputNumber <= NUM_OPTIONS) {
         function = menu[inputNumber - 1].function;
@@ -90,6 +87,9 @@ MenuFunction getMenuChoice(MenuItem * menu)
     return NULL;
 }
 
+/**
+ * Ask the user a number from 1 - 9. This is a recursive function.
+ **/
 int get_menu_number() {
     int inputNumber = 0;
 

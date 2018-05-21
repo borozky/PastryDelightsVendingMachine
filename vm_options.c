@@ -6,24 +6,6 @@
 
 #include "vm_options.h"
 
-#define DEFAULT_STOCK_FILE "stock.dat"
-#define DEFAULT_COIN_FILE "coins.dat"
-#define STOCK_LINE_SIZE 1024
-#define COIN_LINE_SIZE 64
-
-int compare_coins(const void *coin1, const void *coin2);
-int size_of_longest_stock_name(List *stock_list);
-void printStock(Stock *stock, int longest_name_size);
-char *get_payment();
-Boolean add_payment(int *payments, int payment);
-void display_payments(int *payments);
-int *get_all_payments(int item_price_in_cents);
-int get_total_amount(int *payments);
-int *get_coins_change(int change, Coin cash_register[NUM_DENOMS]);
-void display_change(int *change);
-void add_to_cash_register(VmSystem *vmSystem, int *payment);
-void refund(VmSystem *vmSystem, int *payments);
-
 /**
  * vm_options.c this is where you need to implement the system handling
  * functions (e.g., init, free, load, save) and the main options for
@@ -37,18 +19,25 @@ void refund(VmSystem *vmSystem, int *payments);
  **/
 Boolean systemInit(VmSystem * system)
 {
+    /* set the coin and stock file name in the system */
     if (system == NULL) {
         system = (VmSystem *) malloc(sizeof(*system));
-        (*system).coinFileName = DEFAULT_COIN_FILE;
-        (*system).stockFileName = DEFAULT_STOCK_FILE;
+        system->coinFileName = DEFAULT_COIN_FILE;
+        system->stockFileName = DEFAULT_STOCK_FILE;
     }
 
-    if (loadData(system, (*system).stockFileName, (*system).coinFileName) == FALSE) {
+    /**
+     * If data could not be loaded, for example because files cannot be found 
+     * or files are unreadable, this returns FALSE
+     **/
+    if (loadData(system, system->stockFileName, system->coinFileName) == FALSE) {
         return FALSE;
     }
 
     return TRUE;
 }
+
+
 
 /**
  * Free all memory that has been allocated. If you are struggling to
@@ -57,6 +46,7 @@ Boolean systemInit(VmSystem * system)
  **/
 void systemFree(VmSystem * system)
 { 
+    /* TODO */
     return;
 }
 
@@ -69,6 +59,10 @@ void systemFree(VmSystem * system)
 Boolean loadData(
     VmSystem * system, const char * stockFileName, const char * coinsFileName)
 {
+    /**
+     * If data could not be loaded, for example because files cannot be found 
+     * or files are unreadable, this returns FALSE
+     **/
     if (loadStock(system, stockFileName) && loadCoins(system, coinsFileName)) {
         return TRUE;
     }
@@ -95,19 +89,19 @@ Boolean loadStock(VmSystem * system, const char * fileName)
     }
 
     /* creates a linked list (see vm_stock.c) */
-    (*system).itemList = create_list();
+    system->itemList = create_list();
 
-    /* gets each lines */
+    /* gets each line, then convert them into Stock structures */
     line = (char *) malloc(sizeof(*line) * STOCK_LINE_SIZE);
     while (TRUE) {
         fgets(line, STOCK_LINE_SIZE, stock_file);
         if (feof(stock_file)) {
             break;
         }
-
-        /* create and insert the stock into VmSystem's itemList */
         stock = create_stock(line);
-        add_stock_item((*system).itemList, stock);
+
+        /* insert new stock into item list */
+        add_stock_item(system->itemList, stock);
     }
 
     return TRUE;
@@ -130,7 +124,7 @@ Boolean loadCoins(VmSystem * system, const char * fileName)
         return FALSE;
     }
 
-    /* read each line */
+    /* read each line, each line is converted into Coin structures */
     line_number = 0;
     line = (char *) malloc(sizeof(*line) * COIN_LINE_SIZE);
     while (TRUE) {
@@ -159,6 +153,7 @@ Boolean saveStock(VmSystem * system)
     Node *node;
     char *line;
 
+    /* open as append mode */
     stock_file = fopen((*system).stockFileName, "a");
     if (stock_file == NULL) {
         fprintf(stderr, "File '%s' cannot be found or unwritable.", (*system).stockFileName);

@@ -36,9 +36,35 @@ typedef enum boolean
  **/
 void readRestOfLine();
 
+
+/* FUNCTIONS THAT ARE ADDED AS EXTRA HELPER METHODS */
+
+/**
+ * Ask the user to enter a line of text.
+ * Note: This function will not do checking.
+ * If user enters null or an empty string, it will be returned
+ */
 char *nextline(char *message, int size);
+
+/**
+ * Ask the user to enter a number.
+ * Note: This function will not do checking. 
+ * If user enters an invalid number, 0 will be returned
+ **/
 int nextint(char *message);
+
+/**
+ * Ask the user to enter a line of text. If line is null, this will ask again.
+ * Note: If user returns string of blank character, it will still considered 
+ * valid result.
+ **/
 char *nextline_required(char *message, int size, char *invalid_message);
+
+/**
+ * Ask the user to enter a number. If the input entered is not a number, it
+ * will ask again.
+ **/
 int nextint_required(char *message, char *invalid_message);
+
 
 #endif

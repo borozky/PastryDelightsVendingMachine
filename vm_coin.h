@@ -18,6 +18,20 @@
 
 #endif
 
+
+/**
+ * Creates a new coins based on the new line of text provided
+ **/
 Coin *create_coin(char *line);
+
+
+/**
+ * Check if a number is valid denomination. Requires a value in cents
+ **/
 Boolean is_valid_denomination(int cents);
+
+
+/**
+ * Gets the cent value of a particular denomination
+ **/
 int get_cent_value(Denomination denomination);

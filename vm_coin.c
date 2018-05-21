@@ -17,6 +17,10 @@
  * convert Denomination to coin value, deducting coins from register, etc...
  */
 
+
+/**
+ * Creates a new coins based on the new line of text provided
+ **/
 Coin *create_coin(char *line) {
     Coin *coin;
     char *token; /* save string tokens here */
@@ -24,37 +28,37 @@ Coin *create_coin(char *line) {
     int num_cents;
     int count;
 
-    /* coin = new Coin(); */
+    /* new Coin */
     coin = (Coin *) malloc(sizeof(*coin));
 
-    /* split the line provided */
+    /* split the line */
     token = strtok(line, COIN_DELIM);
     num_cents = strtol(token, &end_pointer, 10);
     
     switch (num_cents) {
         case 1000:
-            (*coin).denom = TEN_DOLLARS;
+            coin->denom = TEN_DOLLARS;
             break;
         case 500:
-            (*coin).denom = FIVE_DOLLARS;
+            coin->denom = FIVE_DOLLARS;
             break;
         case 200:
-            (*coin).denom = TWO_DOLLARS;
+            coin->denom = TWO_DOLLARS;
             break;
         case 100:
-            (*coin).denom = ONE_DOLLAR;
+            coin->denom = ONE_DOLLAR;
             break;
         case 50:
-            (*coin).denom = FIFTY_CENTS;
+            coin->denom = FIFTY_CENTS;
             break;
         case 20:
-            (*coin).denom = TWENTY_CENTS;
+            coin->denom = TWENTY_CENTS;
             break;
         case 10:
-            (*coin).denom = TEN_CENTS;
+            coin->denom = TEN_CENTS;
             break;
         case 5:
-            (*coin).denom = FIVE_CENTS;
+            coin->denom = FIVE_CENTS;
             break;
         default:
             free(coin);
@@ -64,11 +68,14 @@ Coin *create_coin(char *line) {
 
     token = strtok(NULL, COIN_DELIM);
     count = strtol(token, &end_pointer, 10);
-    (*coin).count = count;
+    coin->count = count;
 
     return coin;
 }
 
+/**
+ * Check if a number is valid denomination. Requires a value in cents
+ **/
 Boolean is_valid_denomination(int cents) {
     switch (cents) {
         case 1000:
@@ -85,6 +92,9 @@ Boolean is_valid_denomination(int cents) {
     }
 }
 
+/**
+ * Gets the cent value of a particular denomination
+ **/
 int get_cent_value(Denomination denomination) {
     switch (denomination) {
         case TEN_DOLLARS:
