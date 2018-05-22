@@ -53,7 +53,7 @@ char *nextline_required(char *message, int size, char* invalid_message) {
     char *line;
 
     line = nextline(message, size);
-
+    
     if (line != NULL && strlen(line) > 0) {
         return line;
     }
@@ -102,13 +102,7 @@ int nextint_required(char *message, char *invalid_message) {
     /* use base 10 */
     integer = strtol(line, &endPointer, 10);
 
-    if (endPointer == NULL) {
-        printf("Endpointer is null\n");
-        return integer;
-    }
-
-    if (strlen(endPointer) == 0) {
-        printf("Length of endPointer is %d\n", (int) strlen(endPointer));
+    if (endPointer == NULL || strlen(endPointer) == 0) {
         return integer;
     }
 
