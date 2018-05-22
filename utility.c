@@ -37,6 +37,8 @@ char *nextline(char *message, int size) {
     printf("%s", message);
     fgets(line, size, stdin);
 
+    fflush(stdin);
+
     /* remove the extra new line */
     return strtok(line, "\n");
 }
