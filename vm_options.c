@@ -540,7 +540,7 @@ char *get_payment() {
 
     printf("%s\n", line);
 
-    if (strtok(line, "\n") == NULL) {
+    if (line == NULL) {
         readRestOfLine();
         return NULL;
     }
