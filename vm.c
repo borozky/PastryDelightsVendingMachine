@@ -39,7 +39,7 @@ int main(int argc, char ** argv)
             menu_function(vending_machine_system);
         }
 
-        if (menu_function == abortProgram) {
+        if (menu_function == abortProgram || menu_function == saveAndExit) {
             break;
         }
     }
