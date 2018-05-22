@@ -84,7 +84,7 @@ Boolean loadStock(VmSystem * system, const char * fileName)
     /* open stock file in read-mode, return FALSE if not found */
     stock_file = fopen(fileName, "r");
     if (stock_file == NULL) {
-        fprintf(stderr, "Stock file '%s' doesn't exists or unreadable", fileName);
+        fprintf(stderr, "Stock file '%s' doesn't exists or unreadable\n", fileName);
         return FALSE;
     }
 
@@ -120,7 +120,7 @@ Boolean loadCoins(VmSystem * system, const char * fileName)
     /* open the coin file, or return false is not found */
     coin_file = fopen(fileName, "r");
     if (coin_file == NULL) {
-        fprintf(stderr, "Coin file '%s' doesn't exists or unreadable", fileName);
+        fprintf(stderr, "Coin file '%s' doesn't exists or unreadable\n", fileName);
         return FALSE;
     }
 
@@ -280,7 +280,7 @@ void purchaseItem(VmSystem * system)
     stock = get_stock_item_by_id(system->itemList, id);
 
     if (stock == NULL) {
-        printf("Item with ID %s cannot be found", id);
+        printf("Item with ID %s cannot be found\n", id);
         return;
     }
 
@@ -318,7 +318,7 @@ void purchaseItem(VmSystem * system)
     if (get_total_amount(coins_change) != change) {
         refund(system, payments);
         stock->onHand += 1;
-        printf("Sorry, we cannot send back the change. {TODO: reason}");
+        printf("Sorry, we cannot send back the change.");
     } 
     else {
         printf("Thank you. Here is your %s, and your change of $%d.%02d: ", stock->name, (change / 100), (change % 100));
@@ -534,13 +534,16 @@ void printStock(Stock *stock, int longest_name_size) {
 }
 
 char *get_payment() {
-    char *line = (char *) malloc(4 * sizeof(char));
-    fgets(line, sizeof(line), stdin);
+    char *line = (char *) malloc(32 * sizeof(char));
+    fgets(line, 32 * sizeof(char), stdin);
+
+    printf("%s\n", line);
 
     if (strtok(line, "\n") == NULL) {
         readRestOfLine();
         return NULL;
     }
+    
     return line;
 }
 

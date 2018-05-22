@@ -62,7 +62,7 @@ Coin *create_coin(char *line) {
             break;
         default:
             free(coin);
-            fprintf(stderr, "%d is not a valid coin denomination.", num_cents);
+            fprintf(stderr, "%d is not a valid coin denomination.\n", num_cents);
             return NULL;
     }
 
@@ -114,7 +114,7 @@ int get_cent_value(Denomination denomination) {
         case FIVE_CENTS:
             return 5;
         default:
-            fprintf(stderr, "Not a valid denomination");
+            fprintf(stderr, "Not a valid denomination\n");
             return 0;
     }
 }

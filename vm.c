@@ -63,11 +63,11 @@ int initialize(VmSystem *vending_machine_system, int argc, char **argv) {
 
     /* both stock and coin files must exist */
     if (stock_file == NULL) {
-        fprintf(stderr, "Stock file '%s' doesn't exists or unreadable", argv[1]);
+        fprintf(stderr, "Stock file '%s' doesn't exists or unreadable\n", argv[1]);
         return EXIT_FAILURE;
     }
     if (stock_file == NULL) {
-        fprintf(stderr, "Stock file '%s' doesn't exists or unreadable", argv[1]);
+        fprintf(stderr, "Stock file '%s' doesn't exists or unreadable\n", argv[1]);
         return EXIT_FAILURE;
     }
 
