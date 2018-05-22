@@ -154,7 +154,7 @@ Boolean saveStock(VmSystem * system)
     char *line;
 
     /* open as append mode */
-    stock_file = fopen((*system).stockFileName, "a");
+    stock_file = fopen((*system).stockFileName, "w+");
     if (stock_file == NULL) {
         fprintf(stderr, "File '%s' cannot be found or unwritable.", (*system).stockFileName);
         return FALSE;
@@ -166,7 +166,7 @@ Boolean saveStock(VmSystem * system)
 
         line = (char *) malloc(sizeof(*line) * sizeof(*stock));
 
-        sprintf(line, "%s%s%s%s%s%s%d.%02d%s%d",
+        sprintf(line, "%s%s%s%s%s%s%d.%02d%s%d\n",
             (*stock).id,
             STOCK_DELIM,
             (*stock).name,
@@ -179,9 +179,7 @@ Boolean saveStock(VmSystem * system)
             (*stock).onHand
         );
 
-        printf("LINE: %s\n", line);
-
-        /* TODO: Save to stock.dat */
+        fputs(line, stock_file);
 
         node = (*node).next;
 
@@ -202,7 +200,7 @@ Boolean saveCoins(VmSystem * system)
     int line_number;
     int cents;
 
-    coin_file = fopen((*system).coinFileName, "a");
+    coin_file = fopen((*system).coinFileName, "w+");
     if (coin_file == NULL) {
         fprintf(stderr, "Coin file '%s' doesn't exists or unreadable\n", (*system).coinFileName);
         return FALSE;
@@ -214,13 +212,13 @@ Boolean saveCoins(VmSystem * system)
 
         cents = get_cent_value((*system).cashRegister[line_number].denom);
         
-        sprintf(line, "%d%s%d",
+        sprintf(line, "%d%s%d\n",
             cents,
             COIN_DELIM,
             (*system).cashRegister[line_number].count
         );
 
-        printf("COIN: %s\n", line);
+        fputs(line, coin_file);
 
         line_number += 1;
     }
@@ -534,9 +532,9 @@ void printStock(Stock *stock, int longest_name_size) {
 }
 
 char *get_payment() {
-    char *line = (char *) malloc(4 * sizeof(char));
+    char *line = (char *) malloc(32 * sizeof(char));
 
-    line = nextline("", sizeof(*line));
+    line = nextline("", 32 * sizeof(char));
     
     if (line == NULL) {
         readRestOfLine();
