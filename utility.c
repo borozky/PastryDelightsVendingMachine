@@ -37,12 +37,6 @@ char *nextline(char *message, int size) {
     printf("%s", message);
     fgets(line, size, stdin);
 
-    /**
-     * flush is supposed to be used for stdout only, but this still works when 
-     * using stdin.
-     **/
-    fflush(stdin);
-
     /* remove the extra new line */
     return strtok(line, "\n");
 }
