@@ -537,9 +537,7 @@ char *get_payment() {
     char *line = (char *) malloc(4 * sizeof(char));
 
     line = nextline("", sizeof(*line));
-
-    printf("%s\n", line);
-
+    
     if (line == NULL) {
         readRestOfLine();
         return NULL;
