@@ -34,7 +34,8 @@ void readRestOfLine()
  */
 char *nextline(char *message, int size) {
     char *token;
-    char *line = (char *) malloc(size);
+    char *line = (char *) malloc(size + NEW_LINE_SPACE + NULL_SPACE);
+
     printf("%s", message);
     fgets(line, size + NEW_LINE_SPACE + NULL_SPACE, stdin);
 
