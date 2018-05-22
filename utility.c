@@ -60,7 +60,6 @@ char *nextline_required(char *message, int size, char* invalid_message) {
     }
 
     printf("%s", invalid_message);
-    readRestOfLine();
     return nextline_required(message, size, invalid_message);
 }
 
@@ -109,6 +108,5 @@ int nextint_required(char *message, char *invalid_message) {
     }
 
     printf("%s", invalid_message);
-    readRestOfLine();
     return nextint_required(message, invalid_message);
 }
