@@ -276,7 +276,7 @@ void purchaseItem(VmSystem * system)
 
     Stock *stock;
 
-    id = nextline_required("Please enter the id of the item your wish to purchase: ", ID_LEN + NULL_SPACE, "Not a valid ID\n");
+    id = nextline_required("Please enter the id of the item your wish to purchase: ", ID_LEN, "Not a valid ID\n");
     stock = get_stock_item_by_id(system->itemList, id);
 
     if (stock == NULL) {
@@ -534,10 +534,9 @@ void printStock(Stock *stock, int longest_name_size) {
 }
 
 char *get_payment() {
-    char *line = (char *) malloc(32 * sizeof(char));
+    char *line = (char *) malloc(4 * sizeof(char));
 
-    fgets(line, 32 * sizeof(char), stdin);
-    fflush(stdin);
+    line = nextline("", sizeof(*line));
 
     printf("%s\n", line);
 
@@ -595,6 +594,7 @@ int *get_all_payments(int item_price_in_cents) {
         printf("You still need to give us $%d.%02d: ", (cents_remaining / 100), (cents_remaining % 100));
 
         payment = get_payment();
+
         if (payment == NULL) {
             return NULL;
         }
@@ -603,6 +603,7 @@ int *get_all_payments(int item_price_in_cents) {
         
         if (is_valid_denomination(payment_in_cents) == FALSE) {
             printf("%d is not a valid denomination of money.\n", payment_in_cents);
+            readRestOfLine();
             continue;
         }
 
