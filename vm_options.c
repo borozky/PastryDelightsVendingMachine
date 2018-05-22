@@ -264,8 +264,6 @@ void displayItems(VmSystem * system)
 void purchaseItem(VmSystem * system)
 { 
     char *id;
-    char *payment;
-    int payment_in_cents;
     int item_price;
     int *payments;
     int amount_paid;
@@ -382,8 +380,8 @@ void addItem(VmSystem * system)
 void removeItem(VmSystem * system)
 { 
     char *id;
-    char *name;
-    char *description;
+    char *name = "";
+    char *description = "";
     Stock *stock;
 
     Boolean isRemoved = FALSE;
@@ -500,7 +498,6 @@ int size_of_longest_stock_name(List *stock_list) {
     Node *node;
     Stock *stock;
     int size;
-    char *name;
 
     size = 0;
     if (stock_list == NULL) {
