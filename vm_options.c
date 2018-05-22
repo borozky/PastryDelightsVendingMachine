@@ -536,9 +536,8 @@ void printStock(Stock *stock, int longest_name_size) {
 char *get_payment() {
     char *line = (char *) malloc(32 * sizeof(char));
 
-    fflush(stdin);
-
     fgets(line, 32 * sizeof(char), stdin);
+    fflush(stdin);
 
     printf("%s\n", line);
 
