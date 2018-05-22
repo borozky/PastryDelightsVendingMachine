@@ -95,8 +95,6 @@ int get_menu_number() {
 
     inputNumber = nextint_required("Select your options (1-9): ", "Invalid input\n");
 
-    printf("Detected number: %d\n", inputNumber);
-
     if (inputNumber > 0 && inputNumber <= NUM_OPTIONS) {
         return inputNumber;
     }

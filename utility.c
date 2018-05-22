@@ -53,6 +53,9 @@ char *nextline_required(char *message, int size, char* invalid_message) {
     char *line;
 
     line = nextline(message, size);
+
+    printf("Line: %s\n", line);
+
     if (line != NULL && strlen(line) > 0) {
         return line;
     }
