@@ -380,9 +380,9 @@ void addItem(VmSystem * system)
 void removeItem(VmSystem * system)
 { 
     char *id;
-    char *name = "";
-    char *description = "";
     Stock *stock;
+    char name[NAME_LEN];
+    char description[DESC_LEN];
 
     Boolean isRemoved = FALSE;
 
