@@ -5,6 +5,7 @@
         "c": "cd $dir && make ; ./vm stock.dat coins.dat",
     },
     "terminal.integrated.shell.windows": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+    //"terminal.integrated.shell.windows": "C:\\Windows\\System32\\bash.exe",
     "terminal.integrated.env.windows": {
         "PATH": "${env:PATH};/MinGW/msys/1.0/bin"
     },
