@@ -4,7 +4,9 @@ PROGRAM=vm
 WINDOWS_PROGRAM=vm.exe
 DEBUG=-g
 FLAGS=-ansi -pedantic -Wall $(DEBUG)
-LEAK_REPORT_FILENAME="Requirement13Part2.txt"
+FULL_LEAK_CHECK_FILENAME="Requirement13Part1.txt"
+TRACK_ORIGINS_FILENAME="Requirement13Part2.txt"
+USER=s3485376
 
 all:
 	gcc $(FLAGS) -o $(PROGRAM) $(SOURCES)
@@ -22,6 +24,6 @@ valgrind: all
 	valgrind --leak-check=full --show-reachable=yes ./$(PROGRAM) stock.dat coins.dat
 
 report_leaks: all
-	valgrind --track-origins=yes --log-file=$(LEAK_REPORT_FILENAME) ./$(PROGRAM) stock.dat coins.dat
+	valgrind --track-origins=yes --log-file=$(TRACK_ORIGINS_FILENAME) ./$(PROGRAM) stock.dat coins.dat
 
 
