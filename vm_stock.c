@@ -43,8 +43,8 @@ Node *create_node(void) {
         return NULL;
     }
 
-    (*node).data = NULL;
-    (*node).next = NULL;
+    node->data = NULL;
+    node->next = NULL;
 
     return node;
 }
@@ -60,8 +60,8 @@ Node *get_last_node(List* list) {
         return NULL;
     }
     
-    while ( (*temp).next != NULL) {
-        temp = (*temp).next;
+    while ( temp->next != NULL) {
+        temp = temp->next;
     }
 
     return temp;
@@ -86,7 +86,7 @@ Boolean push_node(List *list, Node *node) {
         list->head = node;
     }
     else {
-        (*lastNode).next = node;
+        lastNode->next = node;
     }
 
     list->size += 1;
@@ -125,7 +125,7 @@ Boolean add_stock_item(List *list, Stock *stockItem) {
     }
 
     lastNode = push_new_node(list);
-    (*lastNode).data = stockItem;
+    lastNode->data = stockItem;
     return TRUE;
 }
 
@@ -138,13 +138,13 @@ Stock *get_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
     tempNode = list->head;
 
     while ( tempNode != NULL) {
-        currentStock = (*tempNode).data;
+        currentStock = tempNode->data;
 
-        if ( strcmp(id, (*currentStock).id) == 0) {
+        if ( strcmp(id, currentStock->id) == 0) {
             return currentStock;
         }
 
-        tempNode = (*tempNode).next;
+        tempNode = tempNode->next;
     }
 
     return NULL;
@@ -162,11 +162,11 @@ Boolean remove_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
     currentNode = list->head;
 
     while (currentNode != NULL) {
-        currentStock = (*currentNode).data;
+        currentStock = currentNode->data;
 
-        if ( strcmp(id, (*currentStock).id) != 0) {
+        if ( strcmp(id, currentStock->id) != 0) {
             previousNode = currentNode;
-            currentNode = (*currentNode).next;
+            currentNode = currentNode->next;
             continue;
         }
 
@@ -174,11 +174,11 @@ Boolean remove_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
 
         /* if current node is the first node, make the next node the first */
         if (previousNode == NULL) {
-            list->head = (*currentNode).next;
+            list->head = currentNode->next;
         }
         /* current node is 2nd, 3rd, 4th,... */
         else {
-            (*previousNode).next = (*currentNode).next;
+            previousNode->next = currentNode->next;
         }
 
         list->size -= 1;
@@ -225,11 +225,11 @@ Stock *create_stock(char *line) {
 
     /* dollars */
     token = strtok(priceToken, ".");
-    (*price).dollars = atoi(token);
+    price->dollars = atoi(token);
 
     /* cents */
     token = strtok(NULL, ".");
-    (*price).cents = atoi(token);
+    price->cents = atoi(token);
 
     stock->price = *price;
     return stock;

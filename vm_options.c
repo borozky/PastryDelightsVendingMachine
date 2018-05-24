@@ -135,7 +135,7 @@ Boolean loadCoins(VmSystem * system, const char * fileName)
 
         /* add new coin */
         coin = create_coin(line);
-        (*system).cashRegister[line_number] = *coin;
+        system->cashRegister[line_number] = *coin;
         line_number += 1;
     }
 
@@ -154,34 +154,34 @@ Boolean saveStock(VmSystem * system)
     char *line;
 
     /* open as append mode */
-    stock_file = fopen((*system).stockFileName, "w+");
+    stock_file = fopen(system->stockFileName, "w+");
     if (stock_file == NULL) {
-        fprintf(stderr, "File '%s' cannot be found or unwritable.", (*system).stockFileName);
+        fprintf(stderr, "File '%s' cannot be found or unwritable.", system->stockFileName);
         return FALSE;
     }
 
-    node = (*system).itemList->head;
+    node = system->itemList->head;
     while (node != NULL) {
-        stock = (*node).data;
+        stock = node->data;
 
         line = (char *) malloc(sizeof(*line) * sizeof(*stock));
 
         sprintf(line, "%s%s%s%s%s%s%d.%02d%s%d\n",
-            (*stock).id,
+            stock->id,
             STOCK_DELIM,
-            (*stock).name,
+            stock->name,
             STOCK_DELIM,
-            (*stock).desc,
+            stock->desc,
             STOCK_DELIM,
-            (*stock).price.dollars,
-            (*stock).price.cents,
+            stock->price.dollars,
+            stock->price.cents,
             STOCK_DELIM,
-            (*stock).onHand
+            stock->onHand
         );
 
         fputs(line, stock_file);
 
-        node = (*node).next;
+        node = node->next;
 
     }
 
@@ -200,9 +200,9 @@ Boolean saveCoins(VmSystem * system)
     int line_number;
     int cents;
 
-    coin_file = fopen((*system).coinFileName, "w+");
+    coin_file = fopen(system->coinFileName, "w+");
     if (coin_file == NULL) {
-        fprintf(stderr, "Coin file '%s' doesn't exists or unreadable\n", (*system).coinFileName);
+        fprintf(stderr, "Coin file '%s' doesn't exists or unreadable\n", system->coinFileName);
         return FALSE;
     }
 
@@ -210,12 +210,12 @@ Boolean saveCoins(VmSystem * system)
     while (line_number < NUM_DENOMS) {
         line = (char *) malloc(COIN_LINE_SIZE);
 
-        cents = get_cent_value((*system).cashRegister[line_number].denom);
+        cents = get_cent_value(system->cashRegister[line_number].denom);
         
         sprintf(line, "%d%s%d\n",
             cents,
             COIN_DELIM,
-            (*system).cashRegister[line_number].count
+            system->cashRegister[line_number].count
         );
 
         fputs(line, coin_file);
@@ -237,10 +237,10 @@ void displayItems(VmSystem * system)
 { 
     Node *node;
     Stock *stock;
-    int longest_name_size = size_of_longest_stock_name((*system).itemList);
+    int longest_name_size = size_of_longest_stock_name(system->itemList);
 
     printf("Items Menu\n");
-    node = (*system).itemList->head;
+    node = system->itemList->head;
     if (node == NULL) {
         printf("Sorry, there are no items in the list\n");
         return;
@@ -250,9 +250,9 @@ void displayItems(VmSystem * system)
     printf("---------------------------------------------------------\n");
 
     while (node != NULL) {
-        stock = (*node).data;
+        stock = node->data;
         printStock(stock, longest_name_size);
-        node = (*node).next;
+        node = node->next;
     }
     return;
 }
@@ -424,10 +424,10 @@ void displayCoins(VmSystem * system)
     printf("Denomination | Count\n\n");
 
     /* sort by denomination value - 5 cents is 0 -> 10 dollars is 7 */
-    qsort((*system).cashRegister, NUM_DENOMS, sizeof((*(*system).cashRegister)), compare_coins);
+    qsort(system->cashRegister, NUM_DENOMS, sizeof(*(system->cashRegister)), compare_coins);
 
     for (i = 0; i < NUM_DENOMS; i++) {
-        cents = get_cent_value((*system).cashRegister[i].denom);
+        cents = get_cent_value(system->cashRegister[i].denom);
 
         if (cents < 100) {
             sprintf(denomination_name, "%d cents", cents);
@@ -435,7 +435,7 @@ void displayCoins(VmSystem * system)
             sprintf(denomination_name, "%d dollars", (cents / 100));
         }
 
-        printf("%12s | %d\n", denomination_name, (*system).cashRegister[i].count);
+        printf("%12s | %d\n", denomination_name, system->cashRegister[i].count);
     }
 
     return;
@@ -506,11 +506,11 @@ int size_of_longest_stock_name(List *stock_list) {
 
     node = (*stock_list).head;
     while (node != NULL) {
-        stock = (*node).data;
+        stock = node->data;
         if (strlen(stock->name) > size) {
             size = strlen(stock->name);
         }
-        node = (*node).next;
+        node = node->next;
     }
 
     return size;
@@ -521,10 +521,10 @@ void printStock(Stock *stock, int longest_name_size) {
         return;
     }
 
-    printf(" %-5s |", (*stock).id);
-    printf(" %-*s |", longest_name_size, (*stock).name);
-    printf(" %-10d |", (*stock).onHand);
-    printf(" $%2d.%02d ", (*stock).price.dollars, (*stock).price.cents);
+    printf(" %-5s |", stock->id);
+    printf(" %-*s |", longest_name_size, stock->name);
+    printf(" %-10d |", stock->onHand);
+    printf(" $%2d.%02d ", stock->price.dollars, stock->price.cents);
     printf("\n");
 }
 

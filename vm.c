@@ -59,8 +59,8 @@ int initialize(VmSystem *vending_machine_system, int argc, char **argv) {
     config_vm_filenames(vending_machine_system, argc, argv);
 
     /* setup stock and coin files */
-    stock_file = fopen((*vending_machine_system).stockFileName, "r");
-    coin_file = fopen((*vending_machine_system).coinFileName, "r");
+    stock_file = fopen(vending_machine_system->stockFileName, "r");
+    coin_file = fopen(vending_machine_system->coinFileName, "r");
 
     /* both stock and coin files must exist */
     if (stock_file == NULL) {
@@ -72,11 +72,11 @@ int initialize(VmSystem *vending_machine_system, int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    (*vending_machine_system).itemList = create_list();
+    vending_machine_system->itemList = create_list();
 
     /* helper method to fill up item_list and cash_register */
-    populate_stock_list((*vending_machine_system).itemList, stock_file);
-    populate_cash_register((*vending_machine_system).cashRegister, coin_file);
+    populate_stock_list(vending_machine_system->itemList, stock_file);
+    populate_cash_register(vending_machine_system->cashRegister, coin_file);
 
     /* everything is in memory */
     fclose(stock_file);
@@ -90,19 +90,19 @@ void config_vm_filenames(VmSystem *vending_machine_system, int argc, char **argv
     switch (argc) {
         /* both stock and coin file args are missing */
         case 1:
-            (*vending_machine_system).stockFileName = DEFAULT_STOCK_FILE;
-            (*vending_machine_system).coinFileName = DEFAULT_COIN_FILE;
+            vending_machine_system->stockFileName = DEFAULT_STOCK_FILE;
+            vending_machine_system->coinFileName = DEFAULT_COIN_FILE;
             break;
         /* stock file is given, coin file arg is missing */
         case 2:
-            (*vending_machine_system).stockFileName = argv[1];
-            (*vending_machine_system).coinFileName = DEFAULT_COIN_FILE;
+            vending_machine_system->stockFileName = argv[1];
+            vending_machine_system->coinFileName = DEFAULT_COIN_FILE;
             break;
         /* both stock and coin files are supplied */
         case 3:
         default:
-            (*vending_machine_system).stockFileName = argv[1];
-            (*vending_machine_system).coinFileName = argv[2];
+            vending_machine_system->stockFileName = argv[1];
+            vending_machine_system->coinFileName = argv[2];
             break;
     }
 }
