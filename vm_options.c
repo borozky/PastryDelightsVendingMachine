@@ -108,6 +108,7 @@ Boolean loadStock(VmSystem * system, const char * fileName)
     }
 
     free(line);
+
     return TRUE;
 }
 
@@ -141,6 +142,8 @@ Boolean loadCoins(VmSystem * system, const char * fileName)
         coin = create_coin(line);
         system->cashRegister[line_number] = *coin;
         line_number += 1;
+
+        free(coin);
     }
 
     free(line);
@@ -568,7 +571,7 @@ Boolean add_payment(int *payments, int payment) {
     }
 
     while (payments) {
-        if (*payments <= 0) {
+        if (is_valid_denomination(*payments) == FALSE) {
             *payments = payment;
             return TRUE;
         }
@@ -606,13 +609,14 @@ int *get_all_payments(int item_price_in_cents) {
     char *payment;
     int *actual_payments;
     int i = 0;
+    int max_payments = item_price_in_cents / get_cent_value(FIVE_CENTS);
 
     int payment_in_cents = 0;
     int num_payments = 0;
     int cents_remaining = item_price_in_cents;
 
     /* user may enter all payments as 5-cent coins */
-    int *payments = (int *) malloc((item_price_in_cents / get_cent_value(FIVE_CENTS)) * sizeof(int));
+    int *payments = (int *) calloc(max_payments, sizeof(payments));
 
     do {
 
@@ -645,10 +649,11 @@ int *get_all_payments(int item_price_in_cents) {
     } while (TRUE);
 
     /* get all payments to be returned back. */
-    actual_payments = (int *) malloc(num_payments * sizeof(int));
+    actual_payments = (int *) calloc(num_payments, sizeof(actual_payments));
     for (i = 0; i < num_payments; i++) {
         actual_payments[i] = payments[i];
     }
+
     free(payments);
 
     return actual_payments;
@@ -675,8 +680,9 @@ int get_total_amount(int *payments) {
  **/
 int *get_coins_change(int change, Coin cash_register[NUM_DENOMS]) {
     int i = 0, j = 0;
+    int max_coins_change = change / get_cent_value(FIVE_CENTS);
     int change_remaining = change;
-    int *coins = (int *) malloc(change * sizeof(int));
+    int *coins = (int *) calloc(max_coins_change, sizeof(*coins));
     int num_coins = 0;
     int num_avail_coins = 0;
     int coins_added = 0;
@@ -718,7 +724,7 @@ void display_change(int * change) {
             return;
         }
         if (*change < 100) {
-            printf("%d c ", *change);
+            printf("%dc ", *change);
         }
         else {
             printf("$%d ", (*change / 100));
@@ -732,14 +738,17 @@ void display_change(int * change) {
  * If a non-valid denomination is reached, the program returns
  **/
 void add_to_cash_register(VmSystem *vmSystem, int *payment) {
-    int i = 0;
+    int i = 0, p = 0;
+
     while (payment) {
-        if (is_valid_denomination(*payment) == FALSE) {
+        p = *payment;
+
+        if (is_valid_denomination(p) == FALSE) {
             return;
         }
 
         for (i = 0; i < NUM_DENOMS; i++) {
-            if ( *payment == get_cent_value(vmSystem->cashRegister[i].denom) ) {
+            if ( p == get_cent_value(vmSystem->cashRegister[i].denom) ) {
                 vmSystem->cashRegister[i].count += 1;
             }
         }
@@ -761,4 +770,3 @@ void refund(VmSystem *vmSystem, int *payment){
         payment++;
     }
 }
-
