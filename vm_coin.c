@@ -61,8 +61,8 @@ Coin *create_coin(char *line) {
             coin->denom = FIVE_CENTS;
             break;
         default:
-            free(coin);
             fprintf(stderr, "%d is not a valid coin denomination.\n", num_cents);
+            free(coin);
             return NULL;
     }
 
