@@ -19,12 +19,15 @@
  **/
 Boolean systemInit(VmSystem * system)
 {
-        /* set the coin and stock file name in the system */
-    if (system == NULL) {
-        system = (VmSystem *) malloc(sizeof(*system));
+    /* set the coin and stock file name in the system */
+    if (system->coinFileName == NULL) {
         system->coinFileName = DEFAULT_COIN_FILE;
+    }
+
+    if (system->stockFileName == NULL) {
         system->stockFileName = DEFAULT_STOCK_FILE;
     }
+
 
     /**
      * If data could not be loaded, for example because files cannot be found 
