@@ -33,14 +33,10 @@ void readRestOfLine()
  * If user enters null or an empty string, it will be returned
  */
 char *nextline(char *message, int size) {
-    char *token;
     char *line = (char *) malloc(size + NEW_LINE_SPACE + NULL_SPACE);
-
     printf("%s", message);
     fgets(line, size + NEW_LINE_SPACE + NULL_SPACE, stdin);
-
-    token = strtok(line, "\n");
-    return token;
+    return strtok(line, "\n");
 }
 
 
@@ -61,6 +57,7 @@ char *nextline_required(char *message, int size, char* invalid_message) {
     }
 
     printf("%s", invalid_message);
+    free(line);
     return nextline_required(message, size, invalid_message);
 }
 
@@ -83,6 +80,7 @@ int nextint(char *message) {
     /* use base 10 */
     integer = strtol(line, &endPointer, 10);
 
+    free(line);
     return integer;
 }
 
@@ -109,5 +107,6 @@ int nextint_required(char *message, char *invalid_message) {
     }
 
     printf("%s", invalid_message);
+    free(line);
     return nextint_required(message, invalid_message);
 }
