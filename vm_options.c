@@ -19,7 +19,7 @@
  **/
 Boolean systemInit(VmSystem * system)
 {
-    /* set the coin and stock file name in the system */
+        /* set the coin and stock file name in the system */
     if (system == NULL) {
         system = (VmSystem *) malloc(sizeof(*system));
         system->coinFileName = DEFAULT_COIN_FILE;
@@ -352,15 +352,26 @@ void addItem(VmSystem * system)
     char price_str[10];
     double price;
     int dollars, cents;
+    char *next_id, *item_name, *item_description, *item_price;
     
     Stock *stock = (Stock *) malloc(sizeof(Stock));
 
-    strcpy(stock->id, next_stock_id(system->itemList));
-    strcpy(stock->name, nextline("Enter the item name: ", sizeof(stock->name)));
-    strcpy(stock->desc, nextline("Enter the item description: ", sizeof(stock->desc)));
+    /* next id */
+    next_id = next_stock_id(system->itemList);
+    strcpy(stock->id, next_id);
+
+    /* item name */
+    item_name = nextline("Enter the item name: ", sizeof(stock->name));
+    strcpy(stock->name, item_name);
+
+    /* item description */
+    item_description = nextline("Enter the item description: ", sizeof(stock->desc));
+    strcpy(stock->desc, item_description);
 
     do {
-        strcpy(price_str, nextline("Enter the price for this item: ", 10));
+        item_price = nextline("Enter the price for this item: ", 10);
+        strcpy(price_str, item_price);
+
         price = atof(price_str);
         if (price == 0.0) {
             continue;
@@ -377,6 +388,11 @@ void addItem(VmSystem * system)
 
     add_stock_item(system->itemList, stock);
     printf("This item \"%s - %s\" has now been added to the menu.\n", stock->name, stock->desc);
+
+    free(next_id);
+    free(item_name);
+    free(item_description);
+    free(item_price);
 }
 
 /**

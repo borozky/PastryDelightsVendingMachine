@@ -195,6 +195,7 @@ Stock *create_stock(char *line) {
     char *token;
     char *priceToken;
     int onHand;
+    Price *price;
 
     /* new stock and new price */
     stock = (Stock *) malloc(sizeof(*stock));
@@ -221,13 +222,19 @@ Stock *create_stock(char *line) {
     onHand = atoi(token);
     stock->onHand = onHand;
 
+    price = (Price *) malloc(sizeof(*price));
+
     /* dollars */
     token = strtok(priceToken, ".");
-    stock->price.dollars = atoi(token);
+    price->dollars = atoi(token);
 
     /* cents */
     token = strtok(NULL, ".");
-    stock->price.cents = atoi(token);
+    price->cents = atoi(token);
+
+    stock->price = *price;
+    free(price);
+    
 
     return stock;
 }

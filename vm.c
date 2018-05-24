@@ -18,11 +18,13 @@ int main(int argc, char ** argv)
     VmSystem *vending_machine_system;
     MenuItem *menus;
     MenuFunction menu_function;
+    Boolean hasInitialized = FALSE;
 
     vending_machine_system = (VmSystem *) malloc(sizeof(*vending_machine_system));
     config_vm_filenames(vending_machine_system, argc, argv);
 
-    if (systemInit(vending_machine_system) == FALSE) {
+    hasInitialized = systemInit(vending_machine_system);
+    if (hasInitialized == FALSE) {
         return EXIT_FAILURE;
     }
 
