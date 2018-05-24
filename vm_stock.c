@@ -27,8 +27,8 @@ List *create_list(void) {
         return NULL;
     }
 
-    (*list).head = NULL;
-    (*list).size = 0;
+    list->head = NULL;
+    list->size = 0;
     return list;
 }
 
@@ -54,7 +54,7 @@ Node *create_node(void) {
  */
 Node *get_last_node(List* list) {
     Node *temp;
-    temp = (*list).head;
+    temp = list->head;
 
     if (temp == NULL) {
         return NULL;
@@ -83,13 +83,13 @@ Boolean push_node(List *list, Node *node) {
     /* if no elements in the list, 
     the node that will be pushed will be the first node */
     if ( lastNode == NULL ) {
-        (*list).head = node;
+        list->head = node;
     }
     else {
         (*lastNode).next = node;
     }
 
-    (*list).size += 1;
+    list->size += 1;
 
     return TRUE;
 }
@@ -135,7 +135,7 @@ Boolean add_stock_item(List *list, Stock *stockItem) {
 Stock *get_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
     Node *tempNode;
     Stock *currentStock;
-    tempNode = (*list).head;
+    tempNode = list->head;
 
     while ( tempNode != NULL) {
         currentStock = (*tempNode).data;
@@ -159,7 +159,7 @@ Boolean remove_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
     Stock *currentStock;
 
     previousNode = NULL;
-    currentNode = (*list).head;
+    currentNode = list->head;
 
     while (currentNode != NULL) {
         currentStock = (*currentNode).data;
@@ -174,14 +174,14 @@ Boolean remove_stock_item_by_id (List *list, char id[ID_LEN + NULL_SPACE]) {
 
         /* if current node is the first node, make the next node the first */
         if (previousNode == NULL) {
-            (*list).head = (*currentNode).next;
+            list->head = (*currentNode).next;
         }
         /* current node is 2nd, 3rd, 4th,... */
         else {
             (*previousNode).next = (*currentNode).next;
         }
 
-        (*list).size -= 1;
+        list->size -= 1;
         free(currentNode);
 
         return TRUE;
@@ -205,15 +205,15 @@ Stock *create_stock(char *line) {
 
     /* ID */
     token = strtok(line, STOCK_DELIM);
-    strcpy((*stock).id, token);
+    strcpy(stock->id, token);
 
     /* NAME */
     token = strtok(NULL, STOCK_DELIM);
-    strcpy((*stock).name, token);
+    strcpy(stock->name, token);
 
     /* DESCRIPTION */
     token = strtok(NULL, STOCK_DELIM);
-    strcpy((*stock).desc, token);
+    strcpy(stock->desc, token);
 
     /* PRICE, this token will be split later */
     priceToken = strtok(NULL, STOCK_DELIM);
@@ -221,7 +221,7 @@ Stock *create_stock(char *line) {
     /* STOCK ON HAND */
     token = strtok(NULL, STOCK_DELIM);
     onHand = atoi(token);
-    (*stock).onHand = onHand;
+    stock->onHand = onHand;
 
     /* dollars */
     token = strtok(priceToken, ".");
@@ -231,7 +231,7 @@ Stock *create_stock(char *line) {
     token = strtok(NULL, ".");
     (*price).cents = atoi(token);
 
-    (*stock).price = *price;
+    stock->price = *price;
     return stock;
 }
 
