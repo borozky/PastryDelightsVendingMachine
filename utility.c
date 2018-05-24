@@ -103,6 +103,7 @@ int nextint_required(char *message, char *invalid_message) {
     integer = strtol(line, &endPointer, 10);
 
     if (endPointer == NULL || strlen(endPointer) == 0) {
+        free(line);
         return integer;
     }
 
