@@ -475,6 +475,7 @@ void displayCoins(VmSystem * system)
 void resetStock(VmSystem * system)
 { 
     loadStock(system, DEFAULT_STOCK_FILE);
+    printf("Stock successfully restored\n");
     return;
 }
 
@@ -488,6 +489,7 @@ void resetStock(VmSystem * system)
 void resetCoins(VmSystem * system)
 { 
     loadCoins(system, DEFAULT_COIN_FILE);
+    printf("Coins successfully restored\n");
     return;
 }
 
