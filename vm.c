@@ -44,7 +44,8 @@ int main(int argc, char ** argv)
         }
     }
     while (TRUE);
-
+    
+    free(menus);
     return EXIT_SUCCESS;
 }
 
