@@ -63,13 +63,16 @@ Boolean loadData(
      * If data could not be loaded, for example because files cannot be found 
      * or files are unreadable, this returns FALSE
      **/
-    if (loadStock(system, stockFileName) && loadCoins(system, coinsFileName)) {
-        return TRUE;
+    if (loadStock(system, stockFileName) == FALSE) {
+        free(system->itemList);
+        return FALSE;
+    }
+    if (loadCoins(system, coinsFileName) == FALSE) {
+        free(system->cashRegister);
+        return FALSE;
     }
 
-    /* TODO: clean up here if above condition is false */
-
-    return FALSE;
+    return TRUE;
 }
 
 /**
@@ -91,8 +94,8 @@ Boolean loadStock(VmSystem * system, const char * fileName)
     /* creates a linked list (see vm_stock.c) */
     system->itemList = create_list();
 
-    /* gets each line, then convert them into Stock structures */
     line = (char *) malloc(sizeof(*line) * STOCK_LINE_SIZE);
+    /* gets each line, then convert them into Stock structures */
     while (TRUE) {
         fgets(line, STOCK_LINE_SIZE, stock_file);
         if (feof(stock_file)) {
@@ -104,6 +107,7 @@ Boolean loadStock(VmSystem * system, const char * fileName)
         add_stock_item(system->itemList, stock);
     }
 
+    free(line);
     return TRUE;
 }
 
@@ -139,7 +143,7 @@ Boolean loadCoins(VmSystem * system, const char * fileName)
         line_number += 1;
     }
 
-    
+    free(line);
     return TRUE;
 }
 
@@ -208,7 +212,7 @@ Boolean saveCoins(VmSystem * system)
 
     line_number = 0;
     while (line_number < NUM_DENOMS) {
-        line = (char *) malloc(COIN_LINE_SIZE);
+        line = (char *) malloc(COIN_LINE_SIZE * sizeof(*line));
 
         cents = get_cent_value(system->cashRegister[line_number].denom);
         
@@ -219,11 +223,10 @@ Boolean saveCoins(VmSystem * system)
         );
 
         fputs(line, coin_file);
-
         line_number += 1;
+
+        free(line);
     }
-
-
 
     fclose(coin_file);
     return FALSE;
@@ -472,10 +475,15 @@ void resetCoins(VmSystem * system)
  **/
 void abortProgram(VmSystem * system)
 { 
+    printf("Program aborted. Bye!\n");
     systemFree(system);
     return;
 }
 
+/**
+ * Comparator function that compares a coin to another.
+ * The coin that has lower denomination value will be the first in the sorted list
+ **/
 int compare_coins(const void *coin1, const void *coin2) {
     Coin *c1;
     Coin *c2;
@@ -494,6 +502,9 @@ int compare_coins(const void *coin1, const void *coin2) {
     }
 }
 
+/**
+ * Helper function to get the length of longest stock name
+ **/
 int size_of_longest_stock_name(List *stock_list) {
     Node *node;
     Stock *stock;
@@ -516,6 +527,9 @@ int size_of_longest_stock_name(List *stock_list) {
     return size;
 }
 
+/**
+ * Helper function to display list of stock in tabular format
+ */
 void printStock(Stock *stock, int longest_name_size) {
     if (stock == NULL || longest_name_size < 0) {
         return;
@@ -528,6 +542,10 @@ void printStock(Stock *stock, int longest_name_size) {
     printf("\n");
 }
 
+/**
+ * Gets users payment. If no payment is entered, 
+ * this will wait the user to enter a new line again
+ **/
 char *get_payment() {
     char *line = (char *) malloc(32 * sizeof(char));
 
@@ -541,6 +559,9 @@ char *get_payment() {
     return line;
 }
 
+/**
+ * Helper function to add payments. Payments is just a list of ints
+ **/
 Boolean add_payment(int *payments, int payment) {
     if (payments == NULL) {
         return FALSE;
@@ -557,9 +578,12 @@ Boolean add_payment(int *payments, int payment) {
     return FALSE;
 }
 
+/**
+ * Helper function that displays series of payments.
+ **/
 void display_payments(int *payments) {
     if (payments == NULL) {
-        fprintf(stderr, "There are no payments");
+        fprintf(stderr, "There are no payments\n");
     }
 
     printf("Payments:\n");
@@ -573,6 +597,11 @@ void display_payments(int *payments) {
     }
 }
 
+/**
+ * Helper fuction that gets all the payments. 
+ * This will call get_payments() repeatedly until 
+ * the sum of all entered payments reaches the item price, 
+ **/
 int *get_all_payments(int item_price_in_cents) {
     char *payment;
     int *actual_payments;
@@ -581,25 +610,28 @@ int *get_all_payments(int item_price_in_cents) {
     int payment_in_cents = 0;
     int num_payments = 0;
     int cents_remaining = item_price_in_cents;
-    int *payments = (int *) malloc(item_price_in_cents * sizeof(int));
+
+    /* user may enter all payments as 5-cent coins */
+    int *payments = (int *) malloc((item_price_in_cents / get_cent_value(FIVE_CENTS)) * sizeof(int));
 
     do {
+
+        /* ask the user for a payments */
         printf("You still need to give us $%d.%02d: ", (cents_remaining / 100), (cents_remaining % 100));
-
         payment = get_payment();
-
         if (payment == NULL) {
             return NULL;
         }
 
         payment_in_cents = atoi(payment);
-        
+
         if (is_valid_denomination(payment_in_cents) == FALSE) {
             printf("%d is not a valid denomination of money.\n", payment_in_cents);
             readRestOfLine();
             continue;
         }
 
+        /* adds the payment to the cash register */
         add_payment(payments, payment_in_cents);
         num_payments += 1;
         cents_remaining -= payment_in_cents;
@@ -612,6 +644,7 @@ int *get_all_payments(int item_price_in_cents) {
 
     } while (TRUE);
 
+    /* get all payments to be returned back. */
     actual_payments = (int *) malloc(num_payments * sizeof(int));
     for (i = 0; i < num_payments; i++) {
         actual_payments[i] = payments[i];
@@ -621,6 +654,9 @@ int *get_all_payments(int item_price_in_cents) {
     return actual_payments;
 }
 
+/**
+ * Gets the total amount of all payments in cents
+ **/
 int get_total_amount(int *payments) {
     int amount_paid = 0;
     while (payments) {
@@ -634,6 +670,9 @@ int get_total_amount(int *payments) {
     return amount_paid;
 }
 
+/**
+ * Helper function to get all possible coins to return as change.
+ **/
 int *get_coins_change(int change, Coin cash_register[NUM_DENOMS]) {
     int i = 0, j = 0;
     int change_remaining = change;
@@ -669,12 +708,15 @@ int *get_coins_change(int change, Coin cash_register[NUM_DENOMS]) {
     return coins;
 }
 
+/**
+ * Displays all coins as change.
+ * If a non valid denomination is reached, the program returns.
+ **/
 void display_change(int * change) {
     while (change) {
         if (is_valid_denomination(*change) == FALSE) {
             return;
         }
-
         if (*change < 100) {
             printf("%d c ", *change);
         }
@@ -685,6 +727,10 @@ void display_change(int * change) {
     }
 }
 
+/**
+ * Adds all coin payments in the cash register.
+ * If a non-valid denomination is reached, the program returns
+ **/
 void add_to_cash_register(VmSystem *vmSystem, int *payment) {
     int i = 0;
     while (payment) {
@@ -701,6 +747,9 @@ void add_to_cash_register(VmSystem *vmSystem, int *payment) {
     }
 }
 
+/**
+ * Removes coins from the cash register.
+ **/
 void refund(VmSystem *vmSystem, int *payment){
     int i = 0;
     while (payment) {
