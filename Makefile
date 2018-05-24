@@ -18,10 +18,10 @@ clean:
 archive:
 	zip $(USER)-a2 $(SOURCES) $(HEADERS) Makefile
 
-valgrind: clean all
+valgrind: all
 	valgrind --leak-check=full --show-reachable=yes ./$(PROGRAM) stock.dat coins.dat
 
-report_leaks: clean all
+report_leaks: all
 	valgrind --track-origins=yes --log-file=$(LEAK_REPORT_FILENAME) ./$(PROGRAM) stock.dat coins.dat
 
 
