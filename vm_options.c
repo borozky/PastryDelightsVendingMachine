@@ -46,7 +46,7 @@ Boolean systemInit(VmSystem * system)
  **/
 void systemFree(VmSystem * system)
 { 
-    /* TODO */
+    free(system);
     return;
 }
 
@@ -139,7 +139,7 @@ Boolean loadCoins(VmSystem * system, const char * fileName)
         line_number += 1;
     }
 
-
+    
     return TRUE;
 }
 
